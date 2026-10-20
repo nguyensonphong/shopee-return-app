@@ -101,14 +101,20 @@
   <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
 
     <!-- STATUS ALERT BAR -->
-    <div id="syncStatus" class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center justify-between gap-2 shadow-xs">
+    <div id="syncStatus" class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center justify-between gap-2 shadow-xs flex-wrap">
       <div class="flex items-center gap-2 truncate">
         <i class="fa-solid fa-circle-check text-emerald-600 shrink-0"></i>
         <span class="truncate">Đồng bộ Supabase DB: <code class="font-bold">san_hoan</code> | Drive: <code class="font-bold">ShopeeReturnMedia</code></span>
       </div>
-      <button onclick="refreshData()" class="text-emerald-700 font-semibold hover:underline shrink-0 text-xs flex items-center gap-1">
-        <i class="fa-solid fa-rotate text-[11px]"></i> <span class="hidden sm:inline">Làm mới</span>
-      </button>
+      <div class="flex items-center gap-2 shrink-0">
+        <button onclick="resetComprehensiveSeedData()" class="px-2.5 py-1 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-medium shadow-xs text-xs flex items-center gap-1 transition">
+          <i class="fa-solid fa-wand-magic-sparkles text-[10px]"></i>
+          <span>Nạp 16 Đơn Mẫu Toàn Diện</span>
+        </button>
+        <button onclick="refreshData()" class="text-emerald-700 font-semibold hover:underline text-xs flex items-center gap-1 px-1.5 py-1">
+          <i class="fa-solid fa-rotate text-[11px]"></i> <span class="hidden sm:inline">Làm mới</span>
+        </button>
+      </div>
     </div>
 
     <!-- ==================== TAB 1: PIPELINE & FLOWCHART VIEW ==================== -->
@@ -895,25 +901,32 @@
       { id: "thanh_lý", name: "Kho Hàng Thanh Lý", step: 5, color: "purple", desc: "Bồi hoàn <100% hoặc xuất bán thanh lý" }
     ];
 
-    // Initial Mock / Seed State
-    let tickets = [
+    // 16 Comprehensive Seed Tickets across all 5 Warehouses, Carriers & Claim Cycles
+    const COMPREHENSIVE_SEEDS = [
+      // === KHO 1: SÀN TRẢ (4 đơn chờ giám định kỹ thuật / bảo hành) ===
       {
         id: "TCK-1001",
-        order_id: "241018SPX9912A",
-        tracking_no: "SPXVN0392019283",
+        order_id: "241020SPX1101A",
+        tracking_no: "SPXVN0918237120",
         carrier: "SPX Express",
-        sku: "Smart Tivi LG 4K 55 inch 55UQ7550PSF",
-        received_date: "2026-10-18",
-        warehouse_id: "chờ_xử_lý",
-        condition: "major_damage",
-        condition_text: "Vỡ màn hình bên trong khi cắm điện test, vỏ thùng rách góc",
+        sku: "Tủ Lạnh Panasonic Inverter 322 Lít NR-BC360QKVN",
+        received_date: "2026-10-20",
+        warehouse_id: "sàn_trả",
+        condition: "pending_inspection",
+        condition_text: "Tiếp nhận sáng nay từ SPX, chờ bộ phận Kỹ thuật kiểm tra ngoại quan và linh kiện",
         claim_target: "100",
-        claim_attempts: 2,
-        claim_status: "pending_shopee",
-        shopee_response: "Shopee đề xuất hoàn 50% chi phí sửa chữa",
+        claim_attempts: 0,
+        claim_status: "none",
+        shopee_response: "",
         drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241020SPX1101A",
+        images: [
+          { name: "241020SPX1101A_IMG_01.jpg", url: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=500&auto=format&fit=crop&q=60" },
+          { name: "241020SPX1101A_IMG_02.jpg", url: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241020SPX1101A_VID_01.mp4", size: 12400000 }],
         escalated: false,
-        created_at: "2026-10-18 10:15"
+        created_at: "2026-10-20 08:30"
       },
       {
         id: "TCK-1002",
@@ -924,77 +937,391 @@
         received_date: "2026-10-19",
         warehouse_id: "sàn_trả",
         condition: "pending_inspection",
-        condition_text: "Chờ bộ phận Kỹ thuật / Bảo hành mở thùng giám định",
+        condition_text: "Thùng xốp nguyên đai từ shipper J&T, chưa mở seal bóc kiện",
         claim_target: "100",
         claim_attempts: 0,
         claim_status: "none",
         shopee_response: "",
         drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241019JNT1203B",
+        images: [
+          { name: "241019JNT1203B_IMG_01.jpg", url: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=500&auto=format&fit=crop&q=60" },
+          { name: "241019JNT1203B_IMG_02.jpg", url: "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241019JNT1203B_VID_01.mp4", size: 18200000 }],
         escalated: false,
         created_at: "2026-10-19 14:30"
       },
       {
         id: "TCK-1003",
-        order_id: "241017NV88320C",
-        tracking_no: "NVN9028301920VN",
+        order_id: "241020NV0918C",
+        tracking_no: "NVN1029384756VN",
         carrier: "Ninja Van",
+        sku: "Nồi Cơm Cao Tần Cuckoo 1.8L CRP-PK1000S",
+        received_date: "2026-10-20",
+        warehouse_id: "sàn_trả",
+        condition: "pending_inspection",
+        condition_text: "Khách từ chối nhận do giao chậm, chờ cắm điện test mâm nhiệt",
+        claim_target: "100",
+        claim_attempts: 0,
+        claim_status: "none",
+        shopee_response: "",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241020NV0918C",
+        images: [
+          { name: "241020NV0918C_IMG_01.jpg", url: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=500&auto=format&fit=crop&q=60" },
+          { name: "241020NV0918C_IMG_02.jpg", url: "https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241020NV0918C_VID_01.mp4", size: 9500000 }],
+        escalated: false,
+        created_at: "2026-10-20 09:15"
+      },
+      {
+        id: "TCK-1004",
+        order_id: "241020VTP8821D",
+        tracking_no: "VTP7729102845VN",
+        carrier: "Viettel Post",
+        sku: "Robot Hút Bụi Lau Nhà Dreame L10s Ultra",
+        received_date: "2026-10-20",
+        warehouse_id: "sàn_trả",
+        condition: "pending_inspection",
+        condition_text: "Chờ Kỹ thuật kiểm kê phụ kiện dock sạc, khay giẻ và bình nước sạch",
+        claim_target: "100",
+        claim_attempts: 0,
+        claim_status: "none",
+        shopee_response: "",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241020VTP8821D",
+        images: [
+          { name: "241020VTP8821D_IMG_01.jpg", url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop&q=60" },
+          { name: "241020VTP8821D_IMG_02.jpg", url: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241020VTP8821D_VID_01.mp4", size: 14000000 }],
+        escalated: false,
+        created_at: "2026-10-20 10:45"
+      },
+
+      // === KHO 2: BÁN BÌNH THƯỜNG (3 đơn nguyên vẹn, claim 0%, nhập kho bán lại) ===
+      {
+        id: "TCK-1005",
+        order_id: "241017SPX8832E",
+        tracking_no: "SPXVN9028301920",
+        carrier: "SPX Express",
         sku: "Máy Lạnh Daikin Inverter 1 HP ATKF25XVMV",
         received_date: "2026-10-17",
         warehouse_id: "bán_bình_thường",
         condition: "normal",
-        condition_text: "Nguyên vẹn, khách đổi ý không nhận, test board mạch hoạt động tốt",
+        condition_text: "Nguyên seal thùng, khách đổi ý không nhận, test board mạch hoạt động tốt, đã dán tem bảo hành mới",
         claim_target: "0",
         claim_attempts: 0,
         claim_status: "completed",
-        shopee_response: "",
+        shopee_response: "Không phát sinh khiếu nại - Hàng đạt chuẩn bán lẻ 100%",
         drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241017SPX8832E",
+        images: [
+          { name: "241017SPX8832E_IMG_01.jpg", url: "https://images.unsplash.com/photo-1614633833026-052026778e87?w=500&auto=format&fit=crop&q=60" },
+          { name: "241017SPX8832E_IMG_02.jpg", url: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241017SPX8832E_VID_01.mp4", size: 11200000 }],
         escalated: false,
         created_at: "2026-10-17 09:00"
       },
       {
-        id: "TCK-1004",
-        order_id: "241015SPX0019D",
-        tracking_no: "SPXVN0102938475",
-        carrier: "SPX Express",
-        sku: "Tủ Lạnh Samsung Inverter 236 Lít RT22M4032BY/SV",
-        received_date: "2026-10-15",
-        warehouse_id: "thanh_lý",
-        condition: "minor_damage",
-        condition_text: "Móp cạnh hông bên trái, Shopee bồi hoàn 40% chi phí",
-        claim_target: "100",
-        claim_attempts: 5,
-        claim_status: "partial_paid",
-        shopee_response: "Shopee chốt hỗ trợ tối đa 40% (800.000đ), đã chuyển thanh lý xuất bán",
+        id: "TCK-1006",
+        order_id: "241016JNT7741F",
+        tracking_no: "JNT6628102934VN",
+        carrier: "J&T Express",
+        sku: "Robot Hút Bụi Lau Nhà Ecovacs Deebot T20 OMNI",
+        received_date: "2026-10-16",
+        warehouse_id: "bán_bình_thường",
+        condition: "normal",
+        condition_text: "Máy mới 100%, nguyên phụ kiện khay giẻ, đã test cảm biến laser LiDAR và dock sạc hoạt động hoàn hảo",
+        claim_target: "0",
+        claim_attempts: 0,
+        claim_status: "completed",
+        shopee_response: "Kiểm tra kỹ thuật Pass - Đã chuyển dữ liệu sang ERP Kho Thành Phẩm",
         drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
-        escalated: true,
-        created_at: "2026-10-15 11:20"
+        folder_name: "Hoan_Shopee_241016JNT7741F",
+        images: [
+          { name: "241016JNT7741F_IMG_01.jpg", url: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=500&auto=format&fit=crop&q=60" },
+          { name: "241016JNT7741F_IMG_02.jpg", url: "https://images.unsplash.com/photo-1550009158-9ebf69173e03?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241016JNT7741F_VID_01.mp4", size: 15300000 }],
+        escalated: false,
+        created_at: "2026-10-16 11:20"
       },
       {
-        id: "TCK-1005",
-        order_id: "241019VTP7721E",
+        id: "TCK-1007",
+        order_id: "241018NV5521G",
+        tracking_no: "NVN5528190281VN",
+        carrier: "Ninja Van",
+        sku: "Quạt Đứng Lửng Mitsubishi Electric R12A-DW",
+        received_date: "2026-10-18",
+        warehouse_id: "bán_bình_thường",
+        condition: "normal",
+        condition_text: "Thùng carton bên ngoài hơi bụi nhẹ, motor quạt và cánh quạt nguyên vẹn không tì vết, đóng lại băng keo niêm phong",
+        claim_target: "0",
+        claim_attempts: 0,
+        claim_status: "completed",
+        shopee_response: "Hàng hoàn hảo - Đã nhập kho sẵn sàng xuất đơn mới",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241018NV5521G",
+        images: [
+          { name: "241018NV5521G_IMG_01.jpg", url: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=500&auto=format&fit=crop&q=60" },
+          { name: "241018NV5521G_IMG_02.jpg", url: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241018NV5521G_VID_01.mp4", size: 8700000 }],
+        escalated: false,
+        created_at: "2026-10-18 15:40"
+      },
+
+      // === KHO 3: CHỜ XỬ LÝ SÀN (4 đơn hư hỏng, đang khiếu nại vòng 1-5 và leo thang) ===
+      {
+        id: "TCK-1008",
+        order_id: "241018SPX9912H",
+        tracking_no: "SPXVN0392019283",
+        carrier: "SPX Express",
+        sku: "Smart Tivi LG 4K 55 inch 55UQ7550PSF",
+        received_date: "2026-10-18",
+        warehouse_id: "chờ_xử_lý",
+        condition: "major_damage",
+        condition_text: "Vỡ nứt màn hình LCD bên trong khi cắm điện test hình ảnh, vỏ thùng rách góc lớn do cấn vật nhọn",
+        claim_target: "100",
+        claim_attempts: 2,
+        claim_status: "pending_shopee",
+        shopee_response: "Shopee đề xuất hoàn 50% chi phí thay panel. Seller phản hồi vòng 2 kiên quyết yêu cầu 100% kèm video test",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241018SPX9912H",
+        images: [
+          { name: "241018SPX9912H_IMG_01.jpg", url: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=500&auto=format&fit=crop&q=60" },
+          { name: "241018SPX9912H_IMG_02.jpg", url: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241018SPX9912H_VID_01.mp4", size: 21500000 }],
+        escalated: false,
+        created_at: "2026-10-18 10:15"
+      },
+      {
+        id: "TCK-1009",
+        order_id: "241019NV6632I",
+        tracking_no: "NVN4419203921VN",
+        carrier: "Ninja Van",
+        sku: "Loa Tháp Samsung Sound Tower MX-T70 1500W",
+        received_date: "2026-10-19",
+        warehouse_id: "chờ_xử_lý",
+        condition: "minor_damage",
+        condition_text: "Gãy chân đế composite, móp lưới tản nhiệt mặt trước do va đập trong quá trình vận chuyển",
+        claim_target: "100",
+        claim_attempts: 1,
+        claim_status: "appealing_1",
+        shopee_response: "Vòng 1: Đã upload video bóc kiện và phiếu lập biên bản đồng kiểm với shipper Ninja Van",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241019NV6632I",
+        images: [
+          { name: "241019NV6632I_IMG_01.jpg", url: "https://images.unsplash.com/photo-1545454675-3531b543be5d?w=500&auto=format&fit=crop&q=60" },
+          { name: "241019NV6632I_IMG_02.jpg", url: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241019NV6632I_VID_01.mp4", size: 16700000 }],
+        escalated: false,
+        created_at: "2026-10-19 13:20"
+      },
+      {
+        id: "TCK-1010",
+        order_id: "241017JNT3321J",
+        tracking_no: "JNT2219485721VN",
+        carrier: "J&T Express",
+        sku: "Tủ Lạnh Panasonic Inverter 255 Lít NR-BV280QSVN",
+        received_date: "2026-10-17",
+        warehouse_id: "chờ_xử_lý",
+        condition: "major_damage",
+        condition_text: "Dập móp sâu cánh cửa trên, rò rỉ khí gas làm lạnh dàn sau, không đạt chuẩn vận hành",
+        claim_target: "100",
+        claim_attempts: 3,
+        claim_status: "appealing_3",
+        shopee_response: "Vòng 3: Shopee đề xuất đền bù 70% giá trị, Seller giữ nguyên yêu cầu 100% kèm bảng báo giá linh kiện chính hãng",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241017JNT3321J",
+        images: [
+          { name: "241017JNT3321J_IMG_01.jpg", url: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=500&auto=format&fit=crop&q=60" },
+          { name: "241017JNT3321J_IMG_02.jpg", url: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241017JNT3321J_VID_01.mp4", size: 24100000 }],
+        escalated: false,
+        created_at: "2026-10-17 14:10"
+      },
+      {
+        id: "TCK-1011",
+        order_id: "241014VTP1122K",
+        tracking_no: "VTP3328190211VN",
+        carrier: "Viettel Post",
+        sku: "Máy Sấy Bơm Nhiệt Beko 8 Kg B3T48110W",
+        received_date: "2026-10-14",
+        warehouse_id: "chờ_xử_lý",
+        condition: "major_damage",
+        condition_text: "Bể vỡ toàn bộ cụm cửa lồng sấy và chập mạch cảm biến ẩm nhiệt, đã vượt quá 5 vòng khiếu nại sàn Shopee",
+        claim_target: "100",
+        claim_attempts: 5,
+        claim_status: "escalated",
+        shopee_response: "🚨 ĐÃ LEO THANG (ESCALATION): Vượt quá 5 vòng Shopee từ chối 100%. Đã gửi công văn cấp cao cho Trưởng bộ phận Khiếu nại Vận chuyển & Bot Lark Suite báo BGĐ",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241014VTP1122K",
+        images: [
+          { name: "241014VTP1122K_IMG_01.jpg", url: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=500&auto=format&fit=crop&q=60" },
+          { name: "241014VTP1122K_IMG_02.jpg", url: "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241014VTP1122K_VID_01.mp4", size: 28500000 }],
+        escalated: true,
+        created_at: "2026-10-14 16:30"
+      },
+
+      // === KHO 4: HOÀN SHOPEE (3 đơn Shopee đã bồi hoàn 100% thành công) ===
+      {
+        id: "TCK-1012",
+        order_id: "241019VTP7721L",
         tracking_no: "VTP6628190281VN",
         carrier: "Viettel Post",
         sku: "Máy Sấy Quần Áo Thông Hơi Electrolux 8.5 Kg EDV854J3WB",
         received_date: "2026-10-19",
         warehouse_id: "hoàn_shopee",
         condition: "major_damage",
-        condition_text: "Vỡ nắp kính cửa trước do va đập vận chuyển",
+        condition_text: "Vỡ nắp kính cửa trước do va đập vận chuyển, biến dạng vỏ kim loại mặt hông",
         claim_target: "100",
         claim_attempts: 2,
         claim_status: "full_refund",
-        shopee_response: "Shopee đồng ý bồi hoàn 100% giá trị đơn hàng (9.200.000đ)",
+        shopee_response: "Shopee đồng ý bồi hoàn 100% giá trị đơn hàng (9.200.000đ). Tiền đã ghi nhận vào Số Dư Tài Khoản Shopee",
         drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241019VTP7721L",
+        images: [
+          { name: "241019VTP7721L_IMG_01.jpg", url: "https://images.unsplash.com/photo-1626806787461-102c1bfaaea1?w=500&auto=format&fit=crop&q=60" },
+          { name: "241019VTP7721L_IMG_02.jpg", url: "https://images.unsplash.com/photo-1610557892470-55d9e80c0bce?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241019VTP7721L_VID_01.mp4", size: 19800000 }],
         escalated: false,
         created_at: "2026-10-19 16:40"
+      },
+      {
+        id: "TCK-1013",
+        order_id: "241016SPX4412M",
+        tracking_no: "SPXVN0882194819",
+        carrier: "SPX Express",
+        sku: "Smart Tivi Samsung Crystal UHD 4K 43 inch 43AU7002",
+        received_date: "2026-10-16",
+        warehouse_id: "hoàn_shopee",
+        condition: "major_damage",
+        condition_text: "Màn hình nứt vỡ toàn phần do va đập trên thùng xe tải vận chuyển SPX",
+        claim_target: "100",
+        claim_attempts: 1,
+        claim_status: "full_refund",
+        shopee_response: "Shopee duyệt bồi hoàn 100% (6.890.000đ) ngay vòng 1 nhờ có đủ video bóc kiện và tem niêm phong kiện hàng",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241016SPX4412M",
+        images: [
+          { name: "241016SPX4412M_IMG_01.jpg", url: "https://images.unsplash.com/photo-1593359677879-a4bb92f829d1?w=500&auto=format&fit=crop&q=60" },
+          { name: "241016SPX4412M_IMG_02.jpg", url: "https://images.unsplash.com/photo-1593784991095-a205069470b6?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241016SPX4412M_VID_01.mp4", size: 17300000 }],
+        escalated: false,
+        created_at: "2026-10-16 10:20"
+      },
+      {
+        id: "TCK-1014",
+        order_id: "241015JNT9932N",
+        tracking_no: "JNT9928103948VN",
+        carrier: "J&T Express",
+        sku: "Máy Rửa Bát Độc Lập Bosch SMS46GI01P Serie 4",
+        received_date: "2026-10-15",
+        warehouse_id: "hoàn_shopee",
+        condition: "major_damage",
+        condition_text: "Móp méo vỏ inox, gãy bản lề cửa rửa bát do đè vật nặng trong xe hàng J&T",
+        claim_target: "100",
+        claim_attempts: 3,
+        claim_status: "full_refund",
+        shopee_response: "Sau 3 vòng thương lượng, Shopee chấp thuận bồi hoàn toàn phần 100% giá trị hóa đơn (14.500.000đ)",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241015JNT9932N",
+        images: [
+          { name: "241015JNT9932N_IMG_01.jpg", url: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=500&auto=format&fit=crop&q=60" },
+          { name: "241015JNT9932N_IMG_02.jpg", url: "https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241015JNT9932N_VID_01.mp4", size: 26000000 }],
+        escalated: false,
+        created_at: "2026-10-15 15:50"
+      },
+
+      // === KHO 5: THANH LÝ (2 đơn hư hao một phần, Shopee hoàn <100%, xuất thanh lý) ===
+      {
+        id: "TCK-1015",
+        order_id: "241015SPX0019O",
+        tracking_no: "SPXVN0102938475",
+        carrier: "SPX Express",
+        sku: "Tủ Lạnh Samsung Inverter 236 Lít RT22M4032BY/SV",
+        received_date: "2026-10-15",
+        warehouse_id: "thanh_lý",
+        condition: "minor_damage",
+        condition_text: "Móp cạnh hông bên trái khoảng 4cm, máy nén inverter và dàn lạnh hoạt động bình thường",
+        claim_target: "100",
+        claim_attempts: 5,
+        claim_status: "partial_paid",
+        shopee_response: "Shopee chốt hỗ trợ tối đa 40% (2.100.000đ). Đã chuyển sang Kho Thanh Lý, niêm yết bán giảm 35% thu hồi vốn",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241015SPX0019O",
+        images: [
+          { name: "241015SPX0019O_IMG_01.jpg", url: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=500&auto=format&fit=crop&q=60" },
+          { name: "241015SPX0019O_IMG_02.jpg", url: "https://images.unsplash.com/photo-1571175443880-49e1d25b2bc5?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241015SPX0019O_VID_01.mp4", size: 16500000 }],
+        escalated: true,
+        created_at: "2026-10-15 11:20"
+      },
+      {
+        id: "TCK-1016",
+        order_id: "241014NV2281P",
+        tracking_no: "NVN7728104928VN",
+        carrier: "Ninja Van",
+        sku: "Bếp Từ Đôi Lắp Âm Hafele HC-I2732A",
+        received_date: "2026-10-14",
+        warehouse_id: "thanh_lý",
+        condition: "minor_damage",
+        condition_text: "Trầy xước mặt kính ceramic bên góc mâm từ phụ, linh kiện và mâm từ chính hoạt động 100%",
+        claim_target: "100",
+        claim_attempts: 4,
+        claim_status: "partial_paid",
+        shopee_response: "Shopee bồi hoàn 35% (1.450.000đ). Kỹ thuật đã vệ sinh test hoàn thiện, chuyển xuất bán cho nhân viên nội bộ",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: "Hoan_Shopee_241014NV2281P",
+        images: [
+          { name: "241014NV2281P_IMG_01.jpg", url: "https://images.unsplash.com/photo-1556911220-e15b29be8c8f?w=500&auto=format&fit=crop&q=60" },
+          { name: "241014NV2281P_IMG_02.jpg", url: "https://images.unsplash.com/photo-1585338107529-13afc5f02586?w=500&auto=format&fit=crop&q=60" }
+        ],
+        videos: [{ name: "241014NV2281P_VID_01.mp4", size: 13200000 }],
+        escalated: false,
+        created_at: "2026-10-14 17:15"
       }
     ];
 
-    // Load Local Storage if available
+    // Initial Mock / Seed State
+    let tickets = JSON.parse(JSON.stringify(COMPREHENSIVE_SEEDS));
+
+    // Load Local Storage if available (upgrades if older 5-ticket set)
     if (localStorage.getItem("shopee_return_tickets")) {
       try {
         const saved = JSON.parse(localStorage.getItem("shopee_return_tickets"));
-        if (saved && saved.length > 0) tickets = saved;
-      } catch (e) {}
+        if (saved && saved.length >= 16) {
+          tickets = saved;
+        } else {
+          tickets = JSON.parse(JSON.stringify(COMPREHENSIVE_SEEDS));
+          localStorage.setItem("shopee_return_tickets", JSON.stringify(tickets));
+        }
+      } catch (e) {
+        tickets = JSON.parse(JSON.stringify(COMPREHENSIVE_SEEDS));
+      }
+    } else {
+      localStorage.setItem("shopee_return_tickets", JSON.stringify(tickets));
+    }
+
+    function resetComprehensiveSeedData() {
+      tickets = JSON.parse(JSON.stringify(COMPREHENSIVE_SEEDS));
+      saveState();
+      showToast("🎉 Đã nạp thành công 16 đơn hàng mẫu toàn diện!");
     }
 
     function saveState() {
