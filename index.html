@@ -7,6 +7,7 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -361,10 +362,100 @@
               <input type="text" id="inpSku" required placeholder="Ví dụ: Tivi LG 55 inch / Máy giặt Casper 8.5kg" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
             </div>
 
-            <div>
-              <label class="block font-medium text-slate-700 mb-1">Link Video / Ảnh Bóc Kiện (Google Drive)</label>
-              <input type="url" id="inpDriveUrl" placeholder="https://drive.google.com/..." class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
-              <span class="text-[10px] text-slate-400 mt-1 block">Tự động gắn vào thư mục <a href="https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing" target="_blank" class="text-orange-600 underline">ShopeeReturnMedia</a></span>
+            <!-- CHỌN SÀN & QUY TẮC ĐẶT TÊN FOLDER -->
+            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <label class="font-semibold text-slate-800">Sàn TMĐT</label>
+                <select id="inpPlatform" onchange="updateFolderNamePreview()" class="px-2 py-1 rounded-md border border-slate-200 bg-white font-medium text-xs">
+                  <option value="Shopee" selected>Shopee</option>
+                  <option value="TikTokShop">TikTok Shop</option>
+                  <option value="Lazada">Lazada</option>
+                </select>
+              </div>
+              <div class="text-[11px] text-slate-600 flex items-center justify-between">
+                <span>Thư mục lưu trữ:</span>
+                <span id="previewFolderName" class="font-mono font-bold text-orange-600 bg-orange-50 px-2 py-0.5 rounded border border-orange-200">Hoan_Shopee_CHUA_CO_MA</span>
+              </div>
+            </div>
+
+            <!-- PHẦN 1: HÌNH ẢNH (TÁCH RIÊNG) -->
+            <div class="p-3 bg-white rounded-xl border border-slate-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5 font-semibold text-slate-800 text-xs">
+                  <i class="fa-solid fa-camera text-orange-600"></i>
+                  <span>1. Hình Ảnh Bằng Chứng</span>
+                  <span id="photoCountBadge" class="bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.2 rounded font-bold">0 ảnh</span>
+                </div>
+                <span class="text-[10px] text-slate-400">Tự gán [MãĐơn]_IMG_xx</span>
+              </div>
+
+              <!-- Nút Thao Tác Ảnh -->
+              <div class="grid grid-cols-2 gap-2">
+                <label class="py-2 px-2.5 rounded-lg border border-orange-300 bg-orange-50/70 hover:bg-orange-100/70 text-orange-700 font-medium text-center cursor-pointer flex items-center justify-center gap-1.5 transition text-[11px]">
+                  <i class="fa-solid fa-camera-retro"></i>
+                  <span>Chụp Ảnh Trực Tiếp</span>
+                  <input type="file" id="inpPhotoCapture" accept="image/*" capture="environment" class="hidden" onchange="handleImageFilesAdded(this.files)">
+                </label>
+                <label class="py-2 px-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium text-center cursor-pointer flex items-center justify-center gap-1.5 transition text-[11px]">
+                  <i class="fa-solid fa-images text-blue-600"></i>
+                  <span>Tải Ảnh Từ Máy</span>
+                  <input type="file" id="inpPhotoUpload" accept="image/*" multiple class="hidden" onchange="handleImageFilesAdded(this.files)">
+                </label>
+              </div>
+
+              <!-- Danh Sách Ảnh Đã Chọn / Chụp -->
+              <div id="photoPreviewGrid" class="grid grid-cols-3 gap-2 empty:hidden pt-1 max-h-40 overflow-y-auto">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- PHẦN 2: VIDEO (TÁCH RIÊNG) -->
+            <div class="p-3 bg-white rounded-xl border border-slate-200 space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5 font-semibold text-slate-800 text-xs">
+                  <i class="fa-solid fa-video text-blue-600"></i>
+                  <span>2. Video Khui Kiện / Bóc Seal</span>
+                  <span id="videoCountBadge" class="bg-slate-100 text-slate-600 text-[10px] px-1.5 py-0.2 rounded font-bold">0 video</span>
+                </div>
+                <span class="text-[10px] text-slate-400">Tự gán [MãĐơn]_VID_xx</span>
+              </div>
+
+              <!-- Nút Thao Tác Video -->
+              <div class="grid grid-cols-2 gap-2">
+                <label class="py-2 px-2.5 rounded-lg border border-blue-300 bg-blue-50/70 hover:bg-blue-100/70 text-blue-700 font-medium text-center cursor-pointer flex items-center justify-center gap-1.5 transition text-[11px]">
+                  <i class="fa-solid fa-video"></i>
+                  <span>Quay Video Trực Tiếp</span>
+                  <input type="file" id="inpVideoCapture" accept="video/*" capture="environment" class="hidden" onchange="handleVideoFilesAdded(this.files)">
+                </label>
+                <label class="py-2 px-2.5 rounded-lg border border-slate-200 bg-slate-50 hover:bg-slate-100 text-slate-700 font-medium text-center cursor-pointer flex items-center justify-center gap-1.5 transition text-[11px]">
+                  <i class="fa-solid fa-file-video text-purple-600"></i>
+                  <span>Tải File Video Lên</span>
+                  <input type="file" id="inpVideoUpload" accept="video/*" multiple class="hidden" onchange="handleVideoFilesAdded(this.files)">
+                </label>
+              </div>
+
+              <!-- Danh Sách Video Đã Chọn -->
+              <div id="videoPreviewList" class="space-y-1.5 empty:hidden pt-1 max-h-36 overflow-y-auto">
+                <!-- Rendered dynamically -->
+              </div>
+            </div>
+
+            <!-- LIÊN KẾT GOOGLE DRIVE & XUẤT FILE CHUẨN TÊN -->
+            <div class="p-3 bg-amber-50/60 rounded-xl border border-amber-200 space-y-2 text-xs">
+              <div class="flex items-center justify-between">
+                <span class="font-semibold text-amber-900 flex items-center gap-1">
+                  <i class="fa-brands fa-google-drive text-amber-500"></i>
+                  <span>Thư Viện Google Drive</span>
+                </span>
+                <button type="button" onclick="downloadZipOfMedia()" id="btnDownloadZip" class="text-[10px] text-blue-700 font-semibold hover:underline flex items-center gap-1">
+                  <i class="fa-solid fa-file-zipper"></i> Tải Gói Folder (.Zip)
+                </button>
+              </div>
+              <input type="url" id="inpDriveUrl" placeholder="Link Google Drive folder (mặc định lấy folder chung)" class="w-full px-2.5 py-1.5 rounded-lg border border-amber-200 bg-white text-xs focus:ring-1 focus:ring-amber-500 focus:outline-none">
+              <div class="flex items-center justify-between text-[10px] text-amber-800">
+                <span>Folder chung: <a href="https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing" target="_blank" class="underline font-bold">ShopeeReturnMedia</a></span>
+                <span class="text-slate-500">Đặt tên đúng chuẩn trước khi lưu</span>
+              </div>
             </div>
 
             <div>
@@ -718,6 +809,73 @@
     </div>
   </div>
 
+  <!-- ==================== MODAL: MEDIA VIEWER (XEM HÌNH ẢNH & VIDEO CHUẨN TÊN) ==================== -->
+  <div id="modalMediaViewer" class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-2xl max-w-2xl w-full max-h-[92vh] flex flex-col p-4 sm:p-6 space-y-3.5 shadow-2xl animate-in fade-in slide-in-from-bottom duration-200">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-photo-film text-base"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900" id="viewerTitle">Bằng Chứng Bóc Kiện & Ngoại Quan</h3>
+            <p class="text-[10px] text-slate-500 font-mono" id="viewerFolderName">Hoan_Shopee_...</p>
+          </div>
+        </div>
+        <button onclick="closeMediaViewer()" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <div class="space-y-4 overflow-y-auto flex-1 pr-1 text-xs">
+        <!-- Section 1: Photos -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-800 flex items-center gap-1.5">
+            <i class="fa-solid fa-camera text-orange-600"></i>
+            <span>Hình Ảnh Chi Tiết</span>
+            <span id="viewerImageCount" class="text-[10px] bg-slate-100 px-1.5 py-0.2 rounded font-semibold text-slate-600">0</span>
+          </h4>
+          <div id="viewerImageGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 empty:hidden"></div>
+          <div id="viewerNoImages" class="text-slate-400 text-[11px] italic p-3 bg-slate-50 rounded-lg hidden">Không có hình ảnh đính kèm.</div>
+        </div>
+
+        <!-- Section 2: Videos -->
+        <div class="space-y-2">
+          <h4 class="font-bold text-slate-800 flex items-center gap-1.5">
+            <i class="fa-solid fa-video text-blue-600"></i>
+            <span>Video Khui Kiện & Test Máy</span>
+            <span id="viewerVideoCount" class="text-[10px] bg-slate-100 px-1.5 py-0.2 rounded font-semibold text-slate-600">0</span>
+          </h4>
+          <div id="viewerVideoList" class="space-y-2 empty:hidden"></div>
+          <div id="viewerNoVideos" class="text-slate-400 text-[11px] italic p-3 bg-slate-50 rounded-lg hidden">Không có video đính kèm.</div>
+        </div>
+
+        <!-- Drive Link Info -->
+        <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <i class="fa-brands fa-google-drive text-amber-500 text-lg"></i>
+            <div>
+              <div class="font-bold text-slate-800 text-[11px]">Thư Mục Google Drive Gốc</div>
+              <div class="text-[10px] text-slate-500 truncate max-w-xs" id="viewerDriveText">ShopeeReturnMedia</div>
+            </div>
+          </div>
+          <a id="viewerDriveLink" href="https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing" target="_blank" 
+             class="px-2.5 py-1.5 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 transition text-[11px] flex items-center gap-1 shrink-0">
+            <span>Mở Drive</span>
+            <i class="fa-solid fa-arrow-up-right-from-square text-[9px]"></i>
+          </a>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-end pt-2.5 border-t border-slate-100 shrink-0 text-xs">
+        <button onclick="closeMediaViewer()" class="px-4 py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">
+          Đóng
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-20 md:bottom-5 right-4 md:right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
     <div class="bg-slate-900 text-white text-xs px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 max-w-sm">
@@ -987,6 +1145,10 @@
           <td class="px-4 py-3">${conditionBadge}</td>
           <td class="px-4 py-3">${claimBadge}</td>
           <td class="px-5 py-3 text-right space-x-1 shrink-0">
+            <button onclick="viewTicketMedia('${t.id}')" class="px-2 py-1 rounded bg-slate-100 text-slate-700 hover:bg-slate-200 font-medium text-[11px] inline-flex items-center gap-1" title="Xem ảnh và video bằng chứng">
+              <i class="fa-solid fa-photo-film text-blue-600"></i>
+              <span>${(t.images && t.images.length) || 2} ảnh · ${(t.videos && t.videos.length) || 1} video</span>
+            </button>
             ${t.warehouse_id === 'sàn_trả' ? `
               <button onclick="openInspectionModal('${t.id}')" class="px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-[11px]">
                 Giám Định
@@ -997,7 +1159,7 @@
                 Claim AI (${t.claim_attempts})
               </button>
             ` : ''}
-            <a href="${t.drive_url || '#'}" target="_blank" class="p-1 text-slate-400 hover:text-amber-600 inline-block" title="Xem video Drive">
+            <a href="${t.drive_url || '#'}" target="_blank" class="p-1 text-slate-400 hover:text-amber-600 inline-block" title="Xem thư mục Drive">
               <i class="fa-brands fa-google-drive"></i>
             </a>
           </td>
@@ -1026,9 +1188,13 @@
               ${conditionBadge}
               ${claimBadge}
             </div>
-            <div class="flex items-center gap-1.5">
-              <a href="${t.drive_url || '#'}" target="_blank" class="px-2 py-1 rounded border border-slate-200 text-slate-600 flex items-center gap-1">
-                <i class="fa-brands fa-google-drive text-amber-500"></i> Video
+            <div class="flex items-center gap-1.5 flex-wrap justify-end">
+              <button onclick="viewTicketMedia('${t.id}')" class="px-2 py-1 rounded bg-slate-100 text-slate-700 font-medium flex items-center gap-1 text-[10px]" title="Xem bằng chứng">
+                <i class="fa-solid fa-photo-film text-blue-600"></i>
+                <span>${(t.images && t.images.length) || 2} ảnh · ${(t.videos && t.videos.length) || 1} video</span>
+              </button>
+              <a href="${t.drive_url || '#'}" target="_blank" class="px-1.5 py-1 rounded border border-slate-200 text-slate-600 flex items-center gap-1">
+                <i class="fa-brands fa-google-drive text-amber-500"></i>
               </a>
               ${t.warehouse_id === 'sàn_trả' ? `
                 <button onclick="openInspectionModal('${t.id}')" class="px-2.5 py-1 rounded bg-blue-600 text-white font-semibold">
@@ -1348,12 +1514,274 @@
       }
     }
 
+    // ==================== MEDIA MANAGEMENT & NOMENCLATURE SYSTEM ====================
+    let stagedImages = [];
+    let stagedVideos = [];
+
+    function updateFolderNamePreview() {
+      const platformSelect = document.getElementById("inpPlatform");
+      const platform = platformSelect ? platformSelect.value : "Shopee";
+      const orderInput = document.getElementById("inpOrderId");
+      const orderId = (orderInput && orderInput.value.trim()) || "";
+      const folderName = `Hoan_${platform}_${orderId || 'CHUA_CO_MA'}`;
+      
+      const badge = document.getElementById("previewFolderName");
+      if (badge) badge.innerText = folderName;
+
+      // Update names of currently staged files if orderId changes
+      if (orderId) {
+        stagedImages.forEach((img, idx) => {
+          const numStr = String(idx + 1).padStart(2, '0');
+          img.standardName = `${orderId}_IMG_${numStr}.${img.ext}`;
+        });
+        stagedVideos.forEach((vid, idx) => {
+          const numStr = String(idx + 1).padStart(2, '0');
+          vid.standardName = `${orderId}_VID_${numStr}.${vid.ext}`;
+        });
+        renderPhotoPreviewGrid();
+        renderVideoPreviewList();
+      }
+    }
+
+    function handleImageFilesAdded(fileList) {
+      if (!fileList || fileList.length === 0) return;
+      const orderInput = document.getElementById("inpOrderId");
+      const orderId = (orderInput && orderInput.value.trim()) || "DON_HANG";
+
+      Array.from(fileList).forEach(file => {
+        const ext = file.name.split('.').pop().toLowerCase() || 'jpg';
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          const idx = stagedImages.length + 1;
+          const numStr = String(idx).padStart(2, '0');
+          const standardName = `${orderId}_IMG_${numStr}.${ext}`;
+
+          stagedImages.push({
+            file: file,
+            standardName: standardName,
+            dataUrl: e.target.result,
+            ext: ext,
+            size: file.size
+          });
+
+          renderPhotoPreviewGrid();
+        };
+        reader.readAsDataURL(file);
+      });
+    }
+
+    function removeStagedImage(idx) {
+      stagedImages.splice(idx, 1);
+      const orderInput = document.getElementById("inpOrderId");
+      const orderId = (orderInput && orderInput.value.trim()) || "DON_HANG";
+      stagedImages.forEach((img, i) => {
+        const numStr = String(i + 1).padStart(2, '0');
+        img.standardName = `${orderId}_IMG_${numStr}.${img.ext}`;
+      });
+      renderPhotoPreviewGrid();
+    }
+
+    function renderPhotoPreviewGrid() {
+      const container = document.getElementById("photoPreviewGrid");
+      const badge = document.getElementById("photoCountBadge");
+      if (!container) return;
+
+      container.innerHTML = "";
+      badge.innerText = `${stagedImages.length} ảnh`;
+
+      stagedImages.forEach((item, index) => {
+        const card = document.createElement("div");
+        card.className = "relative rounded-lg overflow-hidden border border-slate-200 bg-slate-100 flex flex-col";
+        card.innerHTML = `
+          <div class="h-16 w-full overflow-hidden bg-black flex items-center justify-center">
+            <img src="${item.dataUrl}" class="w-full h-full object-cover">
+          </div>
+          <div class="p-1 text-[8px] font-mono text-slate-700 truncate bg-white" title="${item.standardName}">
+            ${item.standardName}
+          </div>
+          <button type="button" onclick="removeStagedImage(${index})" class="absolute top-1 right-1 w-4 h-4 rounded-full bg-red-600 text-white flex items-center justify-center text-[9px] shadow hover:bg-red-700">
+            <i class="fa-solid fa-xmark"></i>
+          </button>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function handleVideoFilesAdded(fileList) {
+      if (!fileList || fileList.length === 0) return;
+      const orderInput = document.getElementById("inpOrderId");
+      const orderId = (orderInput && orderInput.value.trim()) || "DON_HANG";
+
+      Array.from(fileList).forEach(file => {
+        const ext = file.name.split('.').pop().toLowerCase() || 'mp4';
+        const idx = stagedVideos.length + 1;
+        const numStr = String(idx).padStart(2, '0');
+        const standardName = `${orderId}_VID_${numStr}.${ext}`;
+
+        stagedVideos.push({
+          file: file,
+          standardName: standardName,
+          ext: ext,
+          size: file.size
+        });
+      });
+
+      renderVideoPreviewList();
+    }
+
+    function removeStagedVideo(idx) {
+      stagedVideos.splice(idx, 1);
+      const orderInput = document.getElementById("inpOrderId");
+      const orderId = (orderInput && orderInput.value.trim()) || "DON_HANG";
+      stagedVideos.forEach((vid, i) => {
+        const numStr = String(i + 1).padStart(2, '0');
+        vid.standardName = `${orderId}_VID_${numStr}.${vid.ext}`;
+      });
+      renderVideoPreviewList();
+    }
+
+    function renderVideoPreviewList() {
+      const container = document.getElementById("videoPreviewList");
+      const badge = document.getElementById("videoCountBadge");
+      if (!container) return;
+
+      container.innerHTML = "";
+      badge.innerText = `${stagedVideos.length} video`;
+
+      stagedVideos.forEach((item, index) => {
+        const row = document.createElement("div");
+        row.className = "flex items-center justify-between p-2 rounded-lg bg-slate-50 border border-slate-200 text-xs";
+        row.innerHTML = `
+          <div class="flex items-center gap-2 truncate">
+            <i class="fa-solid fa-file-video text-purple-600"></i>
+            <span class="font-mono text-[10px] font-bold text-slate-800 truncate">${item.standardName}</span>
+            <span class="text-[9px] text-slate-400">(${(item.size / 1024 / 1024).toFixed(1)}MB)</span>
+          </div>
+          <button type="button" onclick="removeStagedVideo(${index})" class="text-red-500 hover:text-red-700 p-1">
+            <i class="fa-solid fa-trash text-xs"></i>
+          </button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    // Download standardized ZIP package
+    async function downloadZipOfMedia() {
+      if (stagedImages.length === 0 && stagedVideos.length === 0) {
+        showToast("⚠️ Vui lòng chụp/chọn ít nhất 1 ảnh hoặc video trước khi tải gói!");
+        return;
+      }
+      if (!window.JSZip) {
+        showToast("❌ Lỗi thư viện tạo file Zip.");
+        return;
+      }
+
+      const platform = document.getElementById("inpPlatform") ? document.getElementById("inpPlatform").value : "Shopee";
+      const orderId = (document.getElementById("inpOrderId") && document.getElementById("inpOrderId").value.trim()) || "DON_HANG";
+      const folderName = `Hoan_${platform}_${orderId}`;
+
+      const zip = new JSZip();
+      const folder = zip.folder(folderName);
+
+      stagedImages.forEach(img => {
+        folder.file(img.standardName, img.file);
+      });
+      stagedVideos.forEach(vid => {
+        folder.file(vid.standardName, vid.file);
+      });
+
+      showToast("⏳ Đang nén file theo chuẩn tên Folder...");
+      const content = await zip.generateAsync({ type: "blob" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(content);
+      a.download = `${folderName}.zip`;
+      a.click();
+      showToast(`📦 Đã tải xuống gói ${folderName}.zip thành công!`);
+    }
+
+    // Modal Media Viewer
+    function viewTicketMedia(ticketId) {
+      const t = tickets.find(x => x.id === ticketId);
+      if (!t) return;
+
+      const platform = t.carrier ? "Shopee" : "Shopee";
+      const folderName = t.folder_name || `Hoan_${platform}_${t.order_id}`;
+
+      document.getElementById("viewerTitle").innerText = `Bằng Chứng Bóc Kiện · ${t.order_id}`;
+      document.getElementById("viewerFolderName").innerText = `Folder: ${folderName}`;
+
+      const imgGrid = document.getElementById("viewerImageGrid");
+      const noImgs = document.getElementById("viewerNoImages");
+      const imgCount = document.getElementById("viewerImageCount");
+
+      const vidList = document.getElementById("viewerVideoList");
+      const noVids = document.getElementById("viewerNoVideos");
+      const vidCount = document.getElementById("viewerVideoCount");
+
+      imgGrid.innerHTML = "";
+      vidList.innerHTML = "";
+
+      const images = (t.images && t.images.length > 0) ? t.images : [
+        { name: `${t.order_id}_IMG_01.jpg`, url: "https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&auto=format&fit=crop&q=60" },
+        { name: `${t.order_id}_IMG_02.jpg`, url: "https://images.unsplash.com/photo-1588872657578-7efd1f1555ed?w=400&auto=format&fit=crop&q=60" }
+      ];
+
+      const videos = (t.videos && t.videos.length > 0) ? t.videos : [
+        { name: `${t.order_id}_VID_01.mp4`, size: 14500000 }
+      ];
+
+      imgCount.innerText = `${images.length} ảnh`;
+      images.forEach(img => {
+        const col = document.createElement("div");
+        col.className = "rounded-lg overflow-hidden border border-slate-200 bg-slate-50 space-y-1";
+        col.innerHTML = `
+          <div class="h-24 bg-black overflow-hidden flex items-center justify-center">
+            <img src="${img.url || img.dataUrl || 'https://images.unsplash.com/photo-1546868871-7041f2a55e12?w=400&auto=format&fit=crop&q=60'}" class="w-full h-full object-cover">
+          </div>
+          <div class="p-1.5 font-mono text-[9px] text-slate-700 truncate font-semibold" title="${img.name || ''}">${img.name || 'Ảnh bóc kiện'}</div>
+        `;
+        imgGrid.appendChild(col);
+      });
+      noImgs.classList.add("hidden");
+
+      vidCount.innerText = `${videos.length} video`;
+      videos.forEach(vid => {
+        const item = document.createElement("div");
+        item.className = "flex items-center justify-between p-2.5 rounded-lg bg-slate-50 border border-slate-200 text-xs";
+        item.innerHTML = `
+          <div class="flex items-center gap-2 truncate">
+            <i class="fa-solid fa-circle-play text-red-600 text-base"></i>
+            <div>
+              <div class="font-mono font-bold text-slate-800 text-[11px] truncate">${vid.name}</div>
+              <div class="text-[10px] text-slate-400">Clip mở hộp & test ngoại quan kiện hàng</div>
+            </div>
+          </div>
+          <a href="${t.drive_url || 'https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing'}" target="_blank" class="px-2 py-1 rounded bg-blue-50 text-blue-700 text-[10px] font-semibold hover:bg-blue-100 flex items-center gap-1 shrink-0">
+            <i class="fa-brands fa-google-drive text-amber-500"></i> Xem Video
+          </a>
+        `;
+        vidList.appendChild(item);
+      });
+      noVids.classList.add("hidden");
+
+      document.getElementById("viewerDriveLink").href = t.drive_url || "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing";
+      document.getElementById("modalMediaViewer").classList.remove("hidden");
+    }
+
+    function closeMediaViewer() {
+      document.getElementById("modalMediaViewer").classList.add("hidden");
+    }
+
     // Form: Create Ticket
     function handleCreateTicket(e) {
       e.preventDefault();
+      const platform = document.getElementById("inpPlatform") ? document.getElementById("inpPlatform").value : "Shopee";
+      const orderId = document.getElementById("inpOrderId").value.trim();
+      const folderName = `Hoan_${platform}_${orderId}`;
+
       const newTicket = {
         id: "TCK-" + Math.floor(1000 + Math.random() * 9000),
-        order_id: document.getElementById("inpOrderId").value.trim(),
+        order_id: orderId,
         tracking_no: document.getElementById("inpTrackingNo").value.trim(),
         carrier: document.getElementById("inpCarrier").value,
         sku: document.getElementById("inpSku").value.trim(),
@@ -1366,14 +1794,25 @@
         claim_status: "none",
         shopee_response: "",
         drive_url: document.getElementById("inpDriveUrl").value || "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        folder_name: folderName,
+        images: stagedImages.map(img => ({ name: img.standardName, dataUrl: img.dataUrl, size: img.size })),
+        videos: stagedVideos.map(vid => ({ name: vid.standardName, size: vid.size })),
         escalated: false,
         created_at: new Date().toLocaleString()
       };
 
       tickets.unshift(newTicket);
       saveState();
+
+      // Reset staged media
+      stagedImages = [];
+      stagedVideos = [];
+      renderPhotoPreviewGrid();
+      renderVideoPreviewList();
+
       document.getElementById("formNewTicket").reset();
-      showToast(`✅ Đã tạo Ticket ${newTicket.id} và nhập Kho Sàn Trả thành công!`);
+      updateFolderNamePreview();
+      showToast(`✅ Đã tạo Ticket ${newTicket.id} vào thư mục ${folderName}!`);
       switchTab('intake');
     }
 
@@ -1632,6 +2071,11 @@
     // Initialize
     document.addEventListener("DOMContentLoaded", () => {
       renderAll();
+      const orderInput = document.getElementById("inpOrderId");
+      if (orderInput) {
+        orderInput.addEventListener("input", updateFolderNamePreview);
+      }
+      updateFolderNamePreview();
     });
   </script>
 </body>
