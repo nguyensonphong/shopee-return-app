@@ -2,267 +2,280 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Hệ Thống Xử Lý Hàng Đổi Trả Sàn TMĐT (Shopee Return Hub)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Hệ Thống Xử Lý Hàng Đổi Trả TMĐT (Shopee Return Hub)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
-    body { font-family: 'Inter', sans-serif; }
-    .badge-step { @apply text-xs font-semibold px-2.5 py-0.5 rounded-full; }
+    body { font-family: 'Inter', sans-serif; -webkit-tap-highlight-color: transparent; }
     /* Custom scrollbar */
-    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar { width: 4px; height: 4px; }
     ::-webkit-scrollbar-track { background: #f1f5f9; }
     ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
     ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    /* iOS input zoom fix */
+    @media screen and (max-width: 768px) {
+      input, select, textarea { font-size: 14px !important; }
+    }
+    .safe-bottom { padding-bottom: env(safe-area-inset-bottom, 16px); }
   </style>
 </head>
-<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col pb-20 md:pb-8">
 
-  <!-- TOP NAVIGATION -->
-  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      <div class="flex items-center space-x-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
-          <i class="fa-solid fa-boxes-packing text-lg"></i>
+  <!-- TOP HEADER (Desktop & Mobile) -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-xs">
+    <div class="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-14 sm:h-16 flex items-center justify-between">
+      
+      <!-- Brand & Title -->
+      <div class="flex items-center space-x-2.5 sm:space-x-3">
+        <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20 shrink-0">
+          <i class="fa-solid fa-boxes-packing text-base sm:text-lg"></i>
         </div>
         <div>
-          <h1 class="text-lg font-bold text-slate-900 leading-tight flex items-center gap-2">
-            Hệ Thống Xử Lý Hàng Đổi Trả TMĐT
-            <span class="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded-md font-medium border border-orange-200">Shopee Ecom</span>
-          </h1>
-          <p class="text-xs text-slate-500">Giám sát 5 Kho · Giám Định · Claim AI Shopee · Tích hợp Lark & Drive</p>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-sm sm:text-base font-bold text-slate-900 leading-tight">Shopee Return Hub</h1>
+            <span class="bg-orange-100 text-orange-700 text-[10px] font-bold px-1.5 py-0.5 rounded border border-orange-200">5 KHO</span>
+          </div>
+          <p class="text-[10px] sm:text-xs text-slate-500 hidden sm:block">Giám sát 5 Kho · Giám Định Kỹ Thuật · Claim AI Shopee · Lark & Drive</p>
+          <p class="text-[10px] text-slate-400 sm:hidden">Hệ thống xử lý hàng hoàn TMĐT</p>
         </div>
       </div>
 
       <!-- Action Quick Bar -->
-      <div class="flex items-center space-x-3">
+      <div class="flex items-center space-x-2 sm:space-x-3">
         <a href="https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing" target="_blank" 
-           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition">
-          <i class="fa-brands fa-google-drive text-amber-500"></i>
-          <span>Thư viện Media Drive</span>
-          <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+           class="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition"
+           title="Mở thư mục video/ảnh Google Drive">
+          <i class="fa-brands fa-google-drive text-amber-500 text-sm"></i>
+          <span class="hidden sm:inline">Drive Media</span>
         </a>
 
-        <div class="h-6 w-px bg-slate-200"></div>
-
         <button onclick="openNewTicketModal()" 
-                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-orange-600 text-white text-xs font-semibold hover:bg-orange-700 transition shadow-sm shadow-orange-600/30">
-          <i class="fa-solid fa-plus"></i>
-          <span>Tiếp Nhận Đơn Hoàn Mới</span>
+                class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-orange-600 text-white text-xs font-semibold hover:bg-orange-700 transition shadow-sm shadow-orange-600/30">
+          <i class="fa-solid fa-plus text-xs"></i>
+          <span class="hidden sm:inline">Tiếp Nhận Đơn Mới</span>
+          <span class="sm:hidden">Nhận Đơn</span>
         </button>
       </div>
     </div>
 
-    <!-- SUB TABS -->
-    <div class="bg-slate-100/80 border-t border-slate-200 px-4 sm:px-6 lg:px-8">
-      <div class="max-w-7xl mx-auto flex space-x-1 sm:space-x-4 overflow-x-auto py-1.5 text-xs font-medium text-slate-600" id="mainTabs">
-        <button onclick="switchTab('pipeline')" id="tab-pipeline" class="tab-btn px-3 py-1.5 rounded-md bg-white text-orange-600 font-semibold shadow-sm border border-slate-200/60 flex items-center gap-2">
+    <!-- DESKTOP TOP TABS (Ẩn trên điện thoại, hiển thị trên màn hình >= md) -->
+    <div class="bg-slate-100/90 border-t border-slate-200 px-4 sm:px-6 lg:px-8 hidden md:block">
+      <div class="max-w-7xl mx-auto flex space-x-2 lg:space-x-3 overflow-x-auto py-1.5 text-xs font-medium text-slate-600" id="mainTabs">
+        <button onclick="switchTab('pipeline')" id="tab-pipeline" class="tab-btn px-3 py-1.5 rounded-lg bg-white text-orange-600 font-semibold shadow-xs border border-slate-200/80 flex items-center gap-2">
           <i class="fa-solid fa-diagram-project"></i>
           <span>1. Quy Trình & Pipeline 5 Kho</span>
         </button>
-        <button onclick="switchTab('intake')" id="tab-intake" class="tab-btn px-3 py-1.5 rounded-md hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
+        <button onclick="switchTab('intake')" id="tab-intake" class="tab-btn px-3 py-1.5 rounded-lg hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
           <i class="fa-solid fa-dolly"></i>
           <span>2. Tiếp Nhận Kho Sàn Trả</span>
-          <span id="badge-intake" class="px-1.5 py-0.2 bg-orange-100 text-orange-700 rounded-full text-[10px]">3</span>
+          <span id="badge-intake" class="px-1.5 py-0.2 bg-orange-100 text-orange-700 rounded-full text-[10px]">0</span>
         </button>
-        <button onclick="switchTab('inspection')" id="tab-inspection" class="tab-btn px-3 py-1.5 rounded-md hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
+        <button onclick="switchTab('inspection')" id="tab-inspection" class="tab-btn px-3 py-1.5 rounded-lg hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
           <i class="fa-solid fa-screwdriver-wrench"></i>
           <span>3. Giám Định Kỹ Thuật / BH</span>
-          <span id="badge-inspect" class="px-1.5 py-0.2 bg-blue-100 text-blue-700 rounded-full text-[10px]">2</span>
+          <span id="badge-inspect" class="px-1.5 py-0.2 bg-blue-100 text-blue-700 rounded-full text-[10px]">0</span>
         </button>
-        <button onclick="switchTab('claims')" id="tab-claims" class="tab-btn px-3 py-1.5 rounded-md hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
+        <button onclick="switchTab('claims')" id="tab-claims" class="tab-btn px-3 py-1.5 rounded-lg hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
           <i class="fa-solid fa-robot"></i>
           <span>4. CS-Ecom Claim Shopee & AI</span>
-          <span id="badge-claims" class="px-1.5 py-0.2 bg-amber-100 text-amber-700 rounded-full text-[10px]">2</span>
+          <span id="badge-claims" class="px-1.5 py-0.2 bg-amber-100 text-amber-700 rounded-full text-[10px]">0</span>
         </button>
-        <button onclick="switchTab('warehouses')" id="tab-warehouses" class="tab-btn px-3 py-1.5 rounded-md hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
+        <button onclick="switchTab('warehouses')" id="tab-warehouses" class="tab-btn px-3 py-1.5 rounded-lg hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
           <i class="fa-solid fa-warehouse"></i>
           <span>5. Quản Lý Tồn 5 Kho</span>
         </button>
-        <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn px-3 py-1.5 rounded-md hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
+        <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn px-3 py-1.5 rounded-lg hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
           <i class="fa-solid fa-chart-pie"></i>
-          <span>6. Báo Cáo & Tích Hợp Lark</span>
+          <span>6. Báo Cáo & Lark Suite</span>
         </button>
       </div>
     </div>
   </header>
 
   <!-- MAIN BODY CONTAINER -->
-  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8 space-y-4 sm:space-y-6">
 
-    <!-- STATUS ALERT NOTIFICATION BAR -->
-    <div id="syncStatus" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-2.5 rounded-xl flex items-center justify-between">
-      <div class="flex items-center gap-2">
-        <i class="fa-solid fa-circle-check text-emerald-600"></i>
-        <span>Đã đồng bộ trực tiếp với Supabase PostgreSQL (Schema: <code class="font-bold">san_hoan</code>).</span>
+    <!-- STATUS ALERT BAR -->
+    <div id="syncStatus" class="bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl flex items-center justify-between gap-2 shadow-xs">
+      <div class="flex items-center gap-2 truncate">
+        <i class="fa-solid fa-circle-check text-emerald-600 shrink-0"></i>
+        <span class="truncate">Đồng bộ Supabase DB: <code class="font-bold">san_hoan</code> | Drive: <code class="font-bold">ShopeeReturnMedia</code></span>
       </div>
-      <button onclick="refreshData()" class="text-emerald-700 font-semibold hover:underline flex items-center gap-1">
-        <i class="fa-solid fa-rotate text-[11px]"></i> Tải lại
+      <button onclick="refreshData()" class="text-emerald-700 font-semibold hover:underline shrink-0 text-xs flex items-center gap-1">
+        <i class="fa-solid fa-rotate text-[11px]"></i> <span class="hidden sm:inline">Làm mới</span>
       </button>
     </div>
 
-    <!-- TAB 1: PIPELINE & FLOWCHART VIEW -->
-    <section id="view-pipeline" class="space-y-6">
-      <!-- 5 WAREHOUSES KPI CARDS -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-        <!-- Kho 1 -->
-        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow transition">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold uppercase text-slate-500">Kho 1 · Tiếp nhận</span>
-            <div class="w-7 h-7 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold">1</div>
-          </div>
-          <h3 class="text-sm font-bold text-slate-800">Kho Sàn Trả</h3>
-          <p class="text-2xl font-black text-orange-600 mt-1" id="stat-kho-san-tra">0</p>
-          <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
-            <i class="fa-solid fa-clock"></i> Chờ khui kiện & quay video
-          </div>
+    <!-- ==================== TAB 1: PIPELINE & FLOWCHART VIEW ==================== -->
+    <section id="view-pipeline" class="space-y-4 sm:space-y-6">
+      
+      <!-- 5 WAREHOUSES KPI CARDS (Scroll ngang trên điện thoại, Grid trên máy tính) -->
+      <div>
+        <div class="flex items-center justify-between mb-2 md:hidden">
+          <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Tình Hình 5 Kho Vật Lý</span>
+          <span class="text-[10px] text-slate-400">Trượt ngang &rarr;</span>
         </div>
+        <div class="flex md:grid md:grid-cols-5 gap-3 overflow-x-auto pb-2 md:pb-0 snap-x snap-mandatory">
+          <!-- Kho 1 -->
+          <div class="min-w-[170px] sm:min-w-0 flex-1 snap-start bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-xs hover:border-orange-300 transition">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] sm:text-xs font-semibold uppercase text-slate-500">Kho 1 · Tiếp Nhận</span>
+              <div class="w-6 h-6 rounded-md bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold">1</div>
+            </div>
+            <h3 class="text-xs sm:text-sm font-bold text-slate-800">Kho Sàn Trả</h3>
+            <p class="text-xl sm:text-2xl font-black text-orange-600 mt-0.5" id="stat-kho-san-tra">0</p>
+            <div class="mt-1 text-[10px] sm:text-[11px] text-slate-500 truncate">
+              <i class="fa-solid fa-box text-orange-400"></i> Chờ khui kiện & test
+            </div>
+          </div>
 
-        <!-- Kho 2 -->
-        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow transition">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold uppercase text-slate-500">Kho 2 · Xuất Bán</span>
-            <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">2</div>
+          <!-- Kho 2 -->
+          <div class="min-w-[170px] sm:min-w-0 flex-1 snap-start bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-xs hover:border-emerald-300 transition">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] sm:text-xs font-semibold uppercase text-slate-500">Kho 2 · Xuất Bán</span>
+              <div class="w-6 h-6 rounded-md bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">2</div>
+            </div>
+            <h3 class="text-xs sm:text-sm font-bold text-slate-800 truncate">Kho Bán Bình Thường</h3>
+            <p class="text-xl sm:text-2xl font-black text-emerald-600 mt-0.5" id="stat-kho-ban">0</p>
+            <div class="mt-1 text-[10px] sm:text-[11px] text-slate-500 truncate">
+              <i class="fa-solid fa-check text-emerald-500"></i> Nguyên vẹn, nhập bán
+            </div>
           </div>
-          <h3 class="text-sm font-bold text-slate-800">Kho Bán Bình Thường</h3>
-          <p class="text-2xl font-black text-emerald-600 mt-1" id="stat-kho-ban">0</p>
-          <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
-            <i class="fa-solid fa-check-double text-emerald-500"></i> Hàng nguyên vẹn, nhập kho bán
-          </div>
-        </div>
 
-        <!-- Kho 3 -->
-        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow transition">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold uppercase text-slate-500">Kho 3 · Chờ Sàn</span>
-            <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold">3</div>
+          <!-- Kho 3 -->
+          <div class="min-w-[170px] sm:min-w-0 flex-1 snap-start bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-xs hover:border-amber-300 transition">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] sm:text-xs font-semibold uppercase text-slate-500">Kho 3 · Chờ Sàn</span>
+              <div class="w-6 h-6 rounded-md bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold">3</div>
+            </div>
+            <h3 class="text-xs sm:text-sm font-bold text-slate-800 truncate">Kho Chờ Xử Lý Sàn</h3>
+            <p class="text-xl sm:text-2xl font-black text-amber-600 mt-0.5" id="stat-kho-cho">0</p>
+            <div class="mt-1 text-[10px] sm:text-[11px] text-slate-500 truncate">
+              <i class="fa-solid fa-hourglass-half text-amber-500"></i> Có lỗi, đang Claim AI
+            </div>
           </div>
-          <h3 class="text-sm font-bold text-slate-800">Kho Chờ Xử Lý Sàn</h3>
-          <p class="text-2xl font-black text-amber-600 mt-1" id="stat-kho-cho">0</p>
-          <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
-            <i class="fa-solid fa-hourglass-half text-amber-500"></i> Hư hỏng, đang claim Shopee
-          </div>
-        </div>
 
-        <!-- Kho 4 -->
-        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow transition">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold uppercase text-slate-500">Kho 4 · Hoàn 100%</span>
-            <div class="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">4</div>
+          <!-- Kho 4 -->
+          <div class="min-w-[170px] sm:min-w-0 flex-1 snap-start bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-xs hover:border-blue-300 transition">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] sm:text-xs font-semibold uppercase text-slate-500">Kho 4 · Hoàn 100%</span>
+              <div class="w-6 h-6 rounded-md bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">4</div>
+            </div>
+            <h3 class="text-xs sm:text-sm font-bold text-slate-800">Kho Hoàn Shopee</h3>
+            <p class="text-xl sm:text-2xl font-black text-blue-600 mt-0.5" id="stat-kho-hoan">0</p>
+            <div class="mt-1 text-[10px] sm:text-[11px] text-slate-500 truncate">
+              <i class="fa-solid fa-hand-holding-dollar text-blue-500"></i> Bồi hoàn đủ 100%
+            </div>
           </div>
-          <h3 class="text-sm font-bold text-slate-800">Kho Hoàn Shopee</h3>
-          <p class="text-2xl font-black text-blue-600 mt-1" id="stat-kho-hoan">0</p>
-          <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
-            <i class="fa-solid fa-hand-holding-dollar text-blue-500"></i> Shopee bồi hoàn 100% tiền
-          </div>
-        </div>
 
-        <!-- Kho 5 -->
-        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow transition">
-          <div class="flex items-center justify-between mb-2">
-            <span class="text-xs font-semibold uppercase text-slate-500">Kho 5 · Thanh Lý</span>
-            <div class="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">5</div>
-          </div>
-          <h3 class="text-sm font-bold text-slate-800">Kho Hàng Thanh Lý</h3>
-          <p class="text-2xl font-black text-purple-600 mt-1" id="stat-kho-thanh-ly">0</p>
-          <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
-            <i class="fa-solid fa-tags text-purple-500"></i> Bồi hoàn &lt;100% hoặc xuất bán thanh lý
+          <!-- Kho 5 -->
+          <div class="min-w-[170px] sm:min-w-0 flex-1 snap-start bg-white rounded-xl p-3 sm:p-4 border border-slate-200 shadow-xs hover:border-purple-300 transition">
+            <div class="flex items-center justify-between mb-1.5">
+              <span class="text-[10px] sm:text-xs font-semibold uppercase text-slate-500">Kho 5 · Thanh Lý</span>
+              <div class="w-6 h-6 rounded-md bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">5</div>
+            </div>
+            <h3 class="text-xs sm:text-sm font-bold text-slate-800">Kho Hàng Thanh Lý</h3>
+            <p class="text-xl sm:text-2xl font-black text-purple-600 mt-0.5" id="stat-kho-thanh-ly">0</p>
+            <div class="mt-1 text-[10px] sm:text-[11px] text-slate-500 truncate">
+              <i class="fa-solid fa-tags text-purple-500"></i> Bồi hoàn &lt;100% / Xuất bán
+            </div>
           </div>
         </div>
       </div>
 
-      <!-- WORKFLOW DIAGRAM CARD -->
-      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
-        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+      <!-- WORKFLOW STEPPER CARD -->
+      <div class="bg-white rounded-2xl p-4 sm:p-6 border border-slate-200 shadow-xs">
+        <div class="flex items-center justify-between pb-3 sm:pb-4 border-b border-slate-100">
           <div>
-            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <h2 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-1.5">
               <i class="fa-solid fa-arrows-split-up-and-left text-orange-600"></i>
-              Sơ Đồ Quy Trình Vòng Đời Xử Lý Hàng Đổi Trả
+              Vòng Đời Xử Lý Ticket Hàng Đổi Trả
             </h2>
-            <p class="text-xs text-slate-500 mt-0.5">Theo dõi chi tiết từ khi mở Ticket đến khi nhập kho bán thông thường hoặc thanh lý xuất bán</p>
+            <p class="text-[11px] sm:text-xs text-slate-500 mt-0.5">Quy trình khép kín từ lúc nhập kiện cho đến khi đóng ticket tại Kho Bán hoặc Kho Thanh Lý</p>
           </div>
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
-            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-            Hệ Thống Trực Tuyến
-          </span>
+          <a href="quy_trinh_hoan_hang_shopee.png" target="_blank" class="text-xs text-orange-600 hover:underline flex items-center gap-1 font-medium shrink-0">
+            <i class="fa-solid fa-image"></i> <span class="hidden sm:inline">Xem Sơ Đồ Ảnh</span>
+          </a>
         </div>
 
-        <!-- Stepper Visual -->
-        <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
-          <!-- Step 1 -->
-          <div class="p-4 rounded-xl bg-orange-50/60 border border-orange-200/80">
-            <div class="flex items-center justify-between font-bold text-orange-900 mb-2">
+        <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-xs">
+          <div class="p-3 rounded-xl bg-orange-50/70 border border-orange-200">
+            <div class="flex items-center justify-between font-bold text-orange-900 mb-1">
               <span>BƯỚC 1: TIẾP NHẬN</span>
-              <i class="fa-solid fa-box text-orange-600"></i>
+              <i class="fa-solid fa-dolly text-orange-600"></i>
             </div>
-            <p class="text-slate-600 leading-relaxed mb-2">Thủ kho đối chiếu vận đơn theo danh sách sàn trả, quay video ngoại quan + bóc kiện, lưu Drive & lập biên bản nhận hàng.</p>
-            <span class="inline-block px-2 py-0.5 rounded bg-white text-orange-800 font-semibold border border-orange-200">Kho Sàn Trả</span>
+            <p class="text-slate-600 text-[11px] leading-relaxed mb-1.5">Thủ kho tra vận đơn, quay video khui kiện, lưu Drive & lập biên bản nhận hàng.</p>
+            <span class="inline-block px-1.5 py-0.5 rounded bg-white text-orange-800 font-semibold border border-orange-200 text-[10px]">Kho Sàn Trả</span>
           </div>
 
-          <!-- Step 2 -->
-          <div class="p-4 rounded-xl bg-blue-50/60 border border-blue-200/80">
-            <div class="flex items-center justify-between font-bold text-blue-900 mb-2">
+          <div class="p-3 rounded-xl bg-blue-50/70 border border-blue-200">
+            <div class="flex items-center justify-between font-bold text-blue-900 mb-1">
               <span>BƯỚC 2: GIÁM ĐỊNH</span>
               <i class="fa-solid fa-stethoscope text-blue-600"></i>
             </div>
-            <p class="text-slate-600 leading-relaxed mb-2">Bộ phận Kỹ thuật / Bảo hành kiểm tra ngoại quan & test hoạt động. Phân loại tình trạng kèm hình ảnh/video thẩm định.</p>
-            <div class="flex gap-1.5 flex-wrap">
-              <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-medium">Nguyên vẹn &rarr; Kho Bán</span>
-              <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-medium">Hư hỏng &rarr; Kho Chờ Sàn</span>
-            </div>
+            <p class="text-slate-600 text-[11px] leading-relaxed mb-1.5">Kỹ thuật kiểm tra ngoại quan & test máy. Bình thường &rarr; Kho Bán; Có lỗi &rarr; Kho Chờ Sàn.</p>
+            <span class="inline-block px-1.5 py-0.5 rounded bg-white text-blue-800 font-semibold border border-blue-200 text-[10px]">Kỹ Thuật / BH</span>
           </div>
 
-          <!-- Step 3 -->
-          <div class="p-4 rounded-xl bg-amber-50/60 border border-amber-200/80">
-            <div class="flex items-center justify-between font-bold text-amber-900 mb-2">
+          <div class="p-3 rounded-xl bg-amber-50/70 border border-amber-200">
+            <div class="flex items-center justify-between font-bold text-amber-900 mb-1">
               <span>BƯỚC 3: CLAIM SHOPEE</span>
-              <i class="fa-solid fa-handshake-angle text-amber-600"></i>
+              <i class="fa-solid fa-robot text-amber-600"></i>
             </div>
-            <p class="text-slate-600 leading-relaxed mb-2">CS-Ecom / AI tự động khiếu nại lên Shopee. Phản hồi trong 24h mỗi khi sàn trả lời (chu kỳ 2-3 ngày). Đạt mục tiêu đề xuất BH.</p>
-            <span class="inline-block px-2 py-0.5 rounded bg-white text-amber-800 font-semibold border border-amber-200">Tối đa 5 lần Claim</span>
+            <p class="text-slate-600 text-[11px] leading-relaxed mb-1.5">CS / AI tự sinh văn bản khiếu nại. Phản hồi trong 24h. Tối đa 5 lần claim trước khi chuyển thủ công.</p>
+            <span class="inline-block px-1.5 py-0.5 rounded bg-white text-amber-800 font-semibold border border-amber-200 text-[10px]">Tối đa 5 Lần</span>
           </div>
 
-          <!-- Step 4 -->
-          <div class="p-4 rounded-xl bg-purple-50/60 border border-purple-200/80">
-            <div class="flex items-center justify-between font-bold text-purple-900 mb-2">
+          <div class="p-3 rounded-xl bg-purple-50/70 border border-purple-200">
+            <div class="flex items-center justify-between font-bold text-purple-900 mb-1">
               <span>BƯỚC 4: KẾT THÚC VÒNG ĐỜI</span>
               <i class="fa-solid fa-flag-checkered text-purple-600"></i>
             </div>
-            <p class="text-slate-600 leading-relaxed mb-2">Hoàn 100% &rarr; Kho Hoàn Shopee. Bồi hoàn &lt;100% &rarr; Kho Thanh Lý. Quá 5 lần &rarr; Chuyển người phụ trách xử lý thủ công.</p>
-            <span class="inline-block px-2 py-0.5 rounded bg-white text-purple-800 font-semibold border border-purple-200">Đóng Ticket</span>
+            <p class="text-slate-600 text-[11px] leading-relaxed mb-1.5">Hoàn 100% &rarr; Kho Hoàn Shopee; Bồi hoàn &lt;100% &rarr; Kho Hàng Thanh Lý xuất bán.</p>
+            <span class="inline-block px-1.5 py-0.5 rounded bg-white text-purple-800 font-semibold border border-purple-200 text-[10px]">Đóng Ticket</span>
           </div>
         </div>
       </div>
 
-      <!-- ACTIVE TICKETS TABLE -->
-      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-        <div class="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+      <!-- ACTIVE TICKETS LIST (HYBRID: CARD VIEW ON MOBILE, TABLE ON DESKTOP) -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-xs overflow-hidden">
+        <div class="p-3.5 sm:px-6 sm:py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
           <div>
-            <h3 class="text-sm font-bold text-slate-900">Danh Sách Ticket Hàng Hoàn Đang Xử Lý</h3>
-            <p class="text-xs text-slate-500">Tra cứu nhanh theo mã đơn, mã vận đơn hoặc tình trạng</p>
+            <h3 class="text-xs sm:text-sm font-bold text-slate-900">Danh Sách Ticket Hàng Hoàn Đang Xử Lý</h3>
+            <p class="text-[11px] text-slate-500">Cập nhật thời gian thực từ kho và các bộ phận</p>
           </div>
           <div class="flex items-center gap-2">
-            <input type="text" id="ticketSearch" onkeyup="filterTicketTable()" placeholder="Tìm kiếm vận đơn, SKU, đơn hàng..." 
-                   class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none w-64">
-            <button onclick="refreshData()" class="p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs">
+            <div class="relative flex-1 sm:w-64">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+              <input type="text" id="ticketSearch" onkeyup="filterTicketTable()" placeholder="Tìm theo đơn hàng, vận đơn, SKU..." 
+                     class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            </div>
+            <button onclick="refreshData()" class="p-1.5 px-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs shrink-0">
               <i class="fa-solid fa-arrows-rotate"></i>
             </button>
           </div>
         </div>
 
-        <div class="overflow-x-auto">
+        <!-- 1. Mobile Cards View (Hiện trên mobile) -->
+        <div id="ticketCardsMobile" class="p-3 space-y-3 md:hidden">
+          <!-- Rendered via JS -->
+        </div>
+
+        <!-- 2. Desktop Table View (Hiện trên màn hình >= md) -->
+        <div class="overflow-x-auto hidden md:block">
           <table class="w-full text-left text-xs text-slate-600">
             <thead class="bg-slate-50 text-slate-700 uppercase font-semibold border-b border-slate-200">
               <tr>
-                <th class="px-6 py-3">Mã Ticket / Đơn Hàng</th>
+                <th class="px-5 py-3">Mã Ticket / Đơn Hàng</th>
                 <th class="px-4 py-3">Mã Vận Đơn</th>
                 <th class="px-4 py-3">Sản Phẩm (SKU)</th>
                 <th class="px-4 py-3">Kho Hiện Tại</th>
                 <th class="px-4 py-3">Trạng Thái Giám Định</th>
                 <th class="px-4 py-3">Vòng Claim</th>
-                <th class="px-6 py-3 text-right">Thao Tác</th>
+                <th class="px-5 py-3 text-right">Thao Tác</th>
               </tr>
             </thead>
             <tbody id="ticketTableBody" class="divide-y divide-slate-100">
@@ -273,16 +286,19 @@
       </div>
     </section>
 
-    <!-- TAB 2: TIẾP NHẬN KHO SÀN TRẢ -->
-    <section id="view-intake" class="hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- ==================== TAB 2: TIẾP NHẬN KHO SÀN TRẢ ==================== -->
+    <section id="view-intake" class="hidden space-y-4 sm:space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        
         <!-- Form Tiếp Nhận Mới -->
-        <div class="lg:col-span-1 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
-            <i class="fa-solid fa-barcode text-orange-600"></i>
-            Đăng Ký Kiện Hàng Trả Về Mới
-          </h3>
-          <p class="text-xs text-slate-500">Thủ kho quét vận đơn khi nhận kiện từ đơn vị vận chuyển (SPX, J&T, Viettel Post...)</p>
+        <div class="lg:col-span-1 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3.5">
+          <div class="border-b border-slate-100 pb-2.5">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-barcode text-orange-600"></i>
+              Tiếp Nhận Kiện Hàng Hoàn Mới
+            </h3>
+            <p class="text-[11px] text-slate-500 mt-0.5">Thủ kho quét vận đơn, mở hộp và quay video bằng chứng</p>
+          </div>
 
           <form id="formNewTicket" onsubmit="handleCreateTicket(event)" class="space-y-3 text-xs">
             <div>
@@ -307,14 +323,14 @@
                 </select>
               </div>
               <div>
-                <label class="block font-medium text-slate-700 mb-1">Thời Gian Nhập Kiện</label>
+                <label class="block font-medium text-slate-700 mb-1">Ngày Nhập Kiện</label>
                 <input type="date" id="inpReceivedDate" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
               </div>
             </div>
 
             <div>
-              <label class="block font-medium text-slate-700 mb-1">Tên Sản Phẩm / Model SKU</label>
-              <input type="text" id="inpSku" required placeholder="Ví dụ: Smart Tivi LG 55UQ7550 / Máy giặt Casper 8.5kg" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+              <label class="block font-medium text-slate-700 mb-1">Tên Sản Phẩm / Model SKU <span class="text-red-500">*</span></label>
+              <input type="text" id="inpSku" required placeholder="Ví dụ: Tivi LG 55 inch / Máy giặt Casper 8.5kg" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
             </div>
 
             <div>
@@ -325,125 +341,137 @@
 
             <div>
               <label class="block font-medium text-slate-700 mb-1">Ghi Chú Ban Đầu Ngoại Quan</label>
-              <textarea id="inpNotes" rows="2" placeholder="Tình trạng vỏ hộp bên ngoài (móp méo, rách băng keo, nguyên seal...)" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none"></textarea>
+              <textarea id="inpNotes" rows="2" placeholder="Tình trạng vỏ hộp (móp méo, rách băng keo, nguyên seal...)" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none"></textarea>
             </div>
 
-            <button type="submit" class="w-full py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold shadow transition flex items-center justify-center gap-2">
+            <button type="submit" class="w-full py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold shadow-xs transition flex items-center justify-center gap-2">
               <i class="fa-solid fa-floppy-disk"></i>
               Lập Biên Bản & Nhập Kho Sàn Trả
             </button>
           </form>
         </div>
 
-        <!-- Danh sách kiện chờ chuyển giám định -->
-        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+        <!-- Danh Sách Kiện Tại Kho Sàn Trả -->
+        <div class="lg:col-span-2 bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2.5">
+            <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-2">
               <i class="fa-solid fa-boxes-stacked text-orange-600"></i>
-              Danh Sách Kiện Tại Kho Sàn Trả (Chờ Kỹ Thuật Giám Định)
+              Kiện Tại Kho Sàn Trả (Chờ Giám Định)
             </h3>
-            <span class="text-xs text-slate-500" id="intake-count">0 kiện</span>
+            <span class="text-xs bg-orange-100 text-orange-800 font-semibold px-2 py-0.5 rounded-full" id="intake-count">0 kiện</span>
           </div>
 
-          <div id="intakeList" class="space-y-3">
+          <div id="intakeList" class="space-y-2.5">
             <!-- Rendered via JS -->
           </div>
         </div>
       </div>
     </section>
 
-    <!-- TAB 3: GIÁM ĐỊNH KỸ THUẬT -->
-    <section id="view-inspection" class="hidden space-y-6">
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+    <!-- ==================== TAB 3: GIÁM ĐỊNH KỸ THUẬT ==================== -->
+    <section id="view-inspection" class="hidden space-y-4 sm:space-y-6">
+      <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
           <div>
-            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
               <i class="fa-solid fa-microscope text-blue-600"></i>
               Phân Loại & Giám Định Kỹ Thuật / Bảo Hành
             </h3>
-            <p class="text-xs text-slate-500">Đánh giá thực tế + phân loại trên hệ thống để điều chuyển về đúng kho</p>
+            <p class="text-[11px] sm:text-xs text-slate-500">Đánh giá thực tế và điều chuyển đúng kho trên app lẫn thực tế</p>
           </div>
-          <div class="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg font-medium border border-blue-200">
-            Quy tắc: Hàng bình thường &rarr; <b>Kho Bán</b> | Có vấn đề &rarr; <b>Kho Chờ Xử Lý Sàn</b>
+          <div class="text-[11px] bg-blue-50 text-blue-800 px-2.5 py-1 rounded-lg font-medium border border-blue-200">
+            Hàng tốt &rarr; <b>Kho Bán</b> | Hư hỏng &rarr; <b>Kho Chờ Sàn</b>
           </div>
         </div>
 
-        <div id="inspectionList" class="space-y-4">
+        <div id="inspectionList" class="space-y-3">
           <!-- Rendered via JS -->
         </div>
       </div>
     </section>
 
-    <!-- TAB 4: CS-ECOM CLAIM SHOPEE & AI -->
-    <section id="view-claims" class="hidden space-y-6">
-      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+    <!-- ==================== TAB 4: CS-ECOM CLAIM SHOPEE & AI ==================== -->
+    <section id="view-claims" class="hidden space-y-4 sm:space-y-6">
+      <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-3">
           <div>
-            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+            <h3 class="text-sm sm:text-base font-bold text-slate-900 flex items-center gap-2">
               <i class="fa-solid fa-brain text-amber-600"></i>
               Bàn Làm Việc CS-Ecom: Khiếu Nại Shopee & Trợ Lý AI
             </h3>
-            <p class="text-xs text-slate-500">Chu kỳ phản hồi Shopee 2-3 ngày, phản hồi trong vòng 24h. Sau 5 lần claim tự động chuyển người phụ trách.</p>
+            <p class="text-[11px] sm:text-xs text-slate-500">Chu kỳ Shopee trả lời 2-3 ngày, phản hồi trong 24h. Quá 5 lần tự động Escalation.</p>
           </div>
           <div class="flex items-center gap-2">
-            <span class="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1.5 rounded-lg font-medium">
-              <i class="fa-solid fa-clock text-amber-600 mr-1"></i> SLA phản hồi: <b>24 Giờ</b>
+            <span class="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-2.5 py-1 rounded-lg font-medium">
+              <i class="fa-solid fa-clock text-amber-600 mr-1"></i> SLA Phản Hồi: <b>24 Giờ</b>
             </span>
           </div>
         </div>
 
-        <div id="claimsList" class="space-y-4">
+        <div id="claimsList" class="space-y-3">
           <!-- Rendered via JS -->
         </div>
       </div>
     </section>
 
-    <!-- TAB 5: QUẢN LÝ TỒN 5 KHO -->
-    <section id="view-warehouses" class="hidden space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-5 gap-4" id="warehousesGrid">
+    <!-- ==================== TAB 5: QUẢN LÝ TỒN 5 KHO ==================== -->
+    <section id="view-warehouses" class="hidden space-y-4 sm:space-y-6">
+      
+      <!-- Mobile Filter Tabs for 5 Warehouses (Hiện trên Mobile) -->
+      <div class="flex space-x-1 overflow-x-auto pb-1 md:hidden" id="mobileWhTabs">
+        <button onclick="filterMobileWarehouse('all')" class="wh-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-900 text-white shrink-0" data-wh="all">Tất Cả (5 Kho)</button>
+        <button onclick="filterMobileWarehouse('sàn_trả')" class="wh-filter-btn px-2.5 py-1 rounded-lg text-xs text-slate-600 bg-white border border-slate-200 shrink-0" data-wh="sàn_trả">1. Sàn Trả</button>
+        <button onclick="filterMobileWarehouse('bán_bình_thường')" class="wh-filter-btn px-2.5 py-1 rounded-lg text-xs text-slate-600 bg-white border border-slate-200 shrink-0" data-wh="bán_bình_thường">2. Bán Thường</button>
+        <button onclick="filterMobileWarehouse('chờ_xử_lý')" class="wh-filter-btn px-2.5 py-1 rounded-lg text-xs text-slate-600 bg-white border border-slate-200 shrink-0" data-wh="chờ_xử_lý">3. Chờ Sàn</button>
+        <button onclick="filterMobileWarehouse('hoàn_shopee')" class="wh-filter-btn px-2.5 py-1 rounded-lg text-xs text-slate-600 bg-white border border-slate-200 shrink-0" data-wh="hoàn_shopee">4. Hoàn 100%</button>
+        <button onclick="filterMobileWarehouse('thanh_lý')" class="wh-filter-btn px-2.5 py-1 rounded-lg text-xs text-slate-600 bg-white border border-slate-200 shrink-0" data-wh="thanh_lý">5. Thanh Lý</button>
+      </div>
+
+      <!-- Grid Columns (Desktop: 5 Cột song song, Mobile: Stack hoặc lọc) -->
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-3 sm:gap-4" id="warehousesGrid">
         <!-- Rendered via JS -->
       </div>
     </section>
 
-    <!-- TAB 6: BÁO CÁO & LARK INTEGRATION -->
-    <section id="view-analytics" class="hidden space-y-6">
-      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Chart 1: Phân bổ hàng theo kho -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <h3 class="text-sm font-bold text-slate-900">Phân Bổ Tồn Hàng Tại 5 Kho</h3>
-          <div class="h-64 flex items-center justify-center">
+    <!-- ==================== TAB 6: BÁO CÁO & LARK SUITE ==================== -->
+    <section id="view-analytics" class="hidden space-y-4 sm:space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+        <!-- Biểu đồ 1 -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <h3 class="text-xs sm:text-sm font-bold text-slate-900">Phân Bổ Hàng Tại 5 Kho</h3>
+          <div class="h-60 flex items-center justify-center">
             <canvas id="chartWarehouse"></canvas>
           </div>
         </div>
 
-        <!-- Chart 2: Tỷ lệ claim bồi hoàn -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
-          <h3 class="text-sm font-bold text-slate-900">Tỷ Lệ Bồi Hoàn Từ Shopee</h3>
-          <div class="h-64 flex items-center justify-center">
+        <!-- Biểu đồ 2 -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
+          <h3 class="text-xs sm:text-sm font-bold text-slate-900">Tỷ Lệ Bồi Hoàn Từ Shopee</h3>
+          <div class="h-60 flex items-center justify-center">
             <canvas id="chartClaimSuccess"></canvas>
           </div>
         </div>
 
-        <!-- Lark Suite Control Panel -->
-        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <!-- Bảng điều khiển Lark Suite -->
+        <div class="bg-white p-4 sm:p-6 rounded-2xl border border-slate-200 shadow-xs space-y-3">
           <div class="flex items-center justify-between">
-            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <h3 class="text-xs sm:text-sm font-bold text-slate-900 flex items-center gap-1.5">
               <i class="fa-solid fa-paper-plane text-blue-600"></i>
               Tích Hợp Lark Suite Bot
             </h3>
-            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-medium">Đã kết nối</span>
+            <span class="text-[11px] bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-medium">Đã kết nối</span>
           </div>
           <p class="text-xs text-slate-500 leading-relaxed">
-            Hệ thống đã lưu Secret <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">HOAN_LARK_APP_ID</code> và <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">HOAN_LARK_BOT_CHAT_ID</code>.
+            Bot tự động đẩy thông báo và thẻ phê duyệt tương tác (Interactive Card) vào nhóm chat Lark.
           </p>
 
-          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
+          <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
             <div class="font-semibold text-slate-800">Thao tác nhanh sang nhóm Lark:</div>
-            <button onclick="triggerLarkTestMessage()" class="w-full py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2">
+            <button onclick="triggerLarkTestMessage()" class="w-full py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2 active:scale-98">
               <i class="fa-solid fa-bell"></i>
-              Gửi Báo Cáo Tồn Kho Sang Nhóm Lark
+              Bắn Báo Cáo Tồn Kho Sang Nhóm Lark
             </button>
-            <button onclick="triggerLarkEscalationAlert()" class="w-full py-2 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 transition flex items-center justify-center gap-2">
+            <button onclick="triggerLarkEscalationAlert()" class="w-full py-2 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 transition flex items-center justify-center gap-2 active:scale-98">
               <i class="fa-solid fa-triangle-exclamation"></i>
               Cảnh Báo Đơn Quá 5 Vòng Claim
             </button>
@@ -451,7 +479,7 @@
 
           <div class="text-[11px] text-slate-500">
             <i class="fa-solid fa-shield-halved text-slate-400 mr-1"></i>
-            Thẻ tương tác Lark Interactive Card cho phép Trưởng bộ phận bấm <b>Phê duyệt</b> hoặc <b>Từ chối</b> trực tiếp trong tin nhắn chat.
+            Trưởng bộ phận có thể bấm <b>Phê duyệt</b> hoặc <b>Từ chối</b> ngay trên điện thoại qua ứng dụng Lark.
           </div>
         </div>
       </div>
@@ -459,45 +487,86 @@
 
   </main>
 
-  <!-- MODAL: INSPECTION POPUP -->
-  <div id="modalInspection" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+  <!-- ==================== MOBILE BOTTOM APP BAR (Dành riêng cho Điện Thoại) ==================== -->
+  <nav class="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-slate-200 safe-bottom shadow-lg">
+    <div class="grid grid-cols-5 h-14 text-[10px] font-medium text-slate-600">
+      
+      <!-- 1. Pipeline -->
+      <button onclick="switchTab('pipeline')" id="m-tab-pipeline" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 text-orange-600 font-bold">
+        <i class="fa-solid fa-diagram-project text-base"></i>
+        <span>Quy Trình</span>
+      </button>
+
+      <!-- 2. Nhận kho -->
+      <button onclick="switchTab('intake')" id="m-tab-intake" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 relative">
+        <i class="fa-solid fa-dolly text-base"></i>
+        <span>Nhận Kho</span>
+        <span id="m-badge-intake" class="absolute top-1.5 right-4 w-4 h-4 bg-orange-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+      </button>
+
+      <!-- 3. Giám định -->
+      <button onclick="switchTab('inspection')" id="m-tab-inspection" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 relative">
+        <i class="fa-solid fa-stethoscope text-base"></i>
+        <span>Giám Định</span>
+        <span id="m-badge-inspect" class="absolute top-1.5 right-4 w-4 h-4 bg-blue-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+      </button>
+
+      <!-- 4. Claim AI -->
+      <button onclick="switchTab('claims')" id="m-tab-claims" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5 relative">
+        <i class="fa-solid fa-robot text-base"></i>
+        <span>Claim AI</span>
+        <span id="m-badge-claims" class="absolute top-1.5 right-4 w-4 h-4 bg-amber-600 text-white text-[9px] font-bold rounded-full flex items-center justify-center hidden">0</span>
+      </button>
+
+      <!-- 5. Tồn kho / Báo cáo -->
+      <button onclick="switchTab('warehouses')" id="m-tab-warehouses" class="mobile-nav-btn flex flex-col items-center justify-center gap-0.5">
+        <i class="fa-solid fa-warehouse text-base"></i>
+        <span>5 Kho</span>
+      </button>
+
+    </div>
+  </nav>
+
+  <!-- ==================== MODAL: INSPECTION (MOBILE BOTTOM SHEET / DESKTOP MODAL) ==================== -->
+  <div id="modalInspection" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-2xl max-w-lg w-full max-h-[92vh] flex flex-col p-5 sm:p-6 space-y-4 shadow-2xl animate-in fade-in slide-in-from-bottom duration-200">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
         <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
           <i class="fa-solid fa-clipboard-check text-blue-600"></i>
           Biên Bản Giám Định Kỹ Thuật
         </h3>
-        <button onclick="closeInspectionModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="closeInspectionModal()" class="p-1 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
-      <div class="space-y-3 text-xs">
+      <div class="space-y-3.5 text-xs overflow-y-auto flex-1 pr-1">
         <input type="hidden" id="modalTicketId">
-        <div>
+        <div class="bg-slate-50 p-3 rounded-xl border border-slate-200">
           <div class="font-medium text-slate-700">Đơn hàng: <span id="modalOrderId" class="font-bold text-slate-900"></span></div>
-          <div class="text-slate-500">SKU: <span id="modalSku" class="text-slate-800 font-semibold"></span></div>
+          <div class="text-slate-500 mt-0.5">SKU: <span id="modalSku" class="text-slate-800 font-semibold"></span></div>
         </div>
 
         <div>
           <label class="block font-medium text-slate-700 mb-1">Kết quả kiểm tra ngoại quan & phụ kiện</label>
-          <select id="modalCondition" class="w-full px-3 py-2 rounded-lg border border-slate-200">
-            <option value="normal">Bình thường (Nguyên seal, đầy đủ phụ kiện, hoạt động tốt)</option>
-            <option value="minor_damage">Hư hỏng nhẹ (Móp méo vỏ hộp, trầy xước nhẹ ngoại quan)</option>
-            <option value="major_damage">Hư hỏng nặng (Vỡ màn hình, nứt vỏ, móp méo biến dạng do vận chuyển)</option>
+          <select id="modalCondition" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white">
+            <option value="normal">Bình thường (Nguyên seal, đủ phụ kiện, test máy tốt)</option>
+            <option value="minor_damage">Hư hỏng nhẹ (Móp méo vỏ hộp, xước nhẹ ngoại quan)</option>
+            <option value="major_damage">Hư hỏng nặng (Vỡ màn hình, nứt vỡ, móp méo do vận chuyển)</option>
             <option value="missing_parts">Thiếu linh kiện / Sai sản phẩm bên trong</option>
           </select>
         </div>
 
         <div>
           <label class="block font-medium text-slate-700 mb-1">Quyết định điều chuyển kho</label>
-          <select id="modalTargetWarehouse" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-semibold">
-            <option value="ban_binh_thuong" class="text-emerald-700">➡️ Chuyển KHO BÁN BÌNH THƯỜNG (Hàng nguyên vẹn - Đóng Ticket)</option>
-            <option value="cho_xu_ly" class="text-amber-700" selected>➡️ Chuyển KHO CHỜ XỬ LÝ SÀN (Có lỗi - Khởi tạo Claim Shopee)</option>
+          <select id="modalTargetWarehouse" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white font-semibold">
+            <option value="ban_binh_thuong" class="text-emerald-700">➡️ Chuyển KHO BÁN BÌNH THƯỜNG (Hàng tốt - Đóng Ticket)</option>
+            <option value="cho_xu_ly" class="text-amber-700" selected>➡️ Chuyển KHO CHỜ XỬ LÝ SÀN (Có lỗi - Mở Claim Shopee)</option>
           </select>
         </div>
 
         <div id="claimRequirementBox">
-          <label class="block font-medium text-slate-700 mb-1">Mức bồi hoàn yêu cầu phía Shopee</label>
-          <select id="modalClaimTarget" class="w-full px-3 py-2 rounded-lg border border-slate-200">
+          <label class="block font-medium text-slate-700 mb-1">Mức bồi hoàn yêu cầu Shopee</label>
+          <select id="modalClaimTarget" class="w-full px-3 py-2 rounded-lg border border-slate-200 bg-white">
             <option value="100">Bồi hoàn 100% giá trị sản phẩm</option>
             <option value="70">Bồi hoàn 70% giá trị sản phẩm</option>
             <option value="50">Bồi hoàn 50% chi phí khắc phục</option>
@@ -505,81 +574,78 @@
         </div>
 
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Ghi chú giám định chi tiết của Kỹ Thuật</label>
-          <textarea id="modalInspectNotes" rows="3" placeholder="Chi tiết lỗi màn hình, bo mạch hoặc đóng gói của khách..." class="w-full px-3 py-2 rounded-lg border border-slate-200"></textarea>
+          <label class="block font-medium text-slate-700 mb-1">Ghi chú giám định kỹ thuật chi tiết</label>
+          <textarea id="modalInspectNotes" rows="3" placeholder="Mô tả cụ thể vị trí vỡ hỏng, bo mạch hoặc đóng gói của khách..." class="w-full px-3 py-2 rounded-lg border border-slate-200"></textarea>
         </div>
       </div>
 
-      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 text-xs">
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 shrink-0 text-xs">
         <button onclick="closeInspectionModal()" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Hủy</button>
-        <button onclick="saveInspectionResult()" class="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700">Xác Nhận & Điều Chuyển Kho</button>
+        <button onclick="saveInspectionResult()" class="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 shadow-xs">Xác Nhận & Điều Chuyển</button>
       </div>
     </div>
   </div>
 
-  <!-- MODAL: AI CLAIM GENERATOR -->
-  <div id="modalAiClaim" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-xl">
-      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+  <!-- ==================== MODAL: AI CLAIM GENERATOR ==================== -->
+  <div id="modalAiClaim" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-2xl max-w-xl w-full max-h-[92vh] flex flex-col p-5 sm:p-6 space-y-4 shadow-2xl animate-in fade-in slide-in-from-bottom duration-200">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3 shrink-0">
         <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
           <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
           Trợ Lý AI: Tạo Khiếu Nại Shopee Tự Động
         </h3>
-        <button onclick="closeAiClaimModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+        <button onclick="closeAiClaimModal()" class="p-1 text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
-      <div class="space-y-3 text-xs">
+      <div class="space-y-3.5 text-xs overflow-y-auto flex-1 pr-1">
         <input type="hidden" id="aiClaimTicketId">
-        <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 text-amber-900">
-          <span class="font-bold">Đơn hàng:</span> <span id="aiOrderId"></span> | 
-          <span class="font-bold">Vòng claim:</span> Lần <span id="aiAttemptNo">1</span>/5
+        <div class="bg-amber-50 p-3 rounded-xl border border-amber-200 text-amber-900">
+          <div class="font-bold">Đơn hàng: <span id="aiOrderId"></span></div>
+          <div class="text-[11px] mt-0.5">Vòng khiếu nại: Lần <span id="aiAttemptNo" class="font-bold text-red-600">1</span>/5</div>
         </div>
 
         <div>
-          <label class="block font-medium text-slate-700 mb-1">Nội dung khiếu nại do AI soạn thảo (Chuẩn chính sách Shopee)</label>
+          <label class="block font-medium text-slate-700 mb-1">Nội dung khiếu nại do AI soạn thảo (Chuẩn chính sách sàn Shopee)</label>
           <textarea id="aiDraftText" rows="6" class="w-full p-3 rounded-lg border border-slate-200 font-mono text-[11px] leading-relaxed"></textarea>
         </div>
 
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Gửi phản hồi cho Shopee</label>
+            <label class="block font-medium text-slate-700 mb-1">Ngày gửi Shopee</label>
             <input type="date" id="aiClaimDate" class="w-full px-3 py-1.5 rounded-lg border border-slate-200">
           </div>
           <div>
-            <label class="block font-medium text-slate-700 mb-1">Hạn CS phản hồi lại sàn</label>
+            <label class="block font-medium text-slate-700 mb-1">SLA Phản hồi lại sàn</label>
             <input type="text" value="Trong vòng 24 giờ" readonly class="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-500">
           </div>
         </div>
       </div>
 
-      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 text-xs">
+      <div class="flex items-center justify-end gap-2 pt-3 border-t border-slate-100 shrink-0 text-xs">
         <button onclick="closeAiClaimModal()" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600">Đóng</button>
-        <button onclick="submitClaimAttempt()" class="px-4 py-2 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700">
-          <i class="fa-solid fa-paper-plane mr-1"></i> Ghi Nhận Gửi Claim Shopee
+        <button onclick="submitClaimAttempt()" class="px-4 py-2 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700 shadow-xs">
+          <i class="fa-solid fa-paper-plane mr-1"></i> Gửi Claim Shopee
         </button>
       </div>
     </div>
   </div>
 
-  <!-- TOAST NOTIFICATION CONTAINER -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
-    <div class="bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-lg flex items-center gap-2">
-      <i id="toastIcon" class="fa-solid fa-check text-emerald-400"></i>
-      <span id="toastMsg">Thao tác thành công</span>
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-20 md:bottom-5 right-4 md:right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
+    <div class="bg-slate-900 text-white text-xs px-4 py-2.5 rounded-xl shadow-lg flex items-center gap-2 max-w-sm">
+      <i id="toastIcon" class="fa-solid fa-check text-emerald-400 shrink-0"></i>
+      <span id="toastMsg" class="truncate">Thao tác thành công</span>
     </div>
   </div>
 
   <!-- CORE JAVASCRIPT APPLICATION LOGIC -->
   <script>
-    // Supabase Configuration
-    const SUPABASE_URL = "https://ljmfzqtqphoxdoxhsayo.supabase.co";
-    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqbWZ6cXRxcGhveGRveGhzYXlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNTE1ODYsImV4cCI6MjEwNzYyNzU4Nn0.CLNoIBtjqzJYqWGtjLrc6SCQWq86_wi-Qe5mupn0X_8";
-
     // 5 Standard Warehouses
     const WAREHOUSES = [
       { id: "sàn_trả", name: "Kho Sàn Trả", step: 1, color: "orange", desc: "Tiếp nhận hàng hoàn ban đầu" },
       { id: "bán_bình_thường", name: "Kho Bán Bình Thường", step: 2, color: "emerald", desc: "Hàng nguyên vẹn, nhập kho bán lại" },
-      { id: "chờ_xử_lý", name: "Kho Chờ Xử Lý Sàn", step: 3, color: "amber", desc: "Hư hỏng, đang khiếu nại đòi bồi hoàn" },
+      { id: "chờ_xử_lý", name: "Kho Chờ Xử Lý Sàn", step: 3, color: "amber", desc: "Hư hỏng, đang khiếu nại Shopee" },
       { id: "hoàn_shopee", name: "Kho Hoàn Shopee", step: 4, color: "blue", desc: "Shopee bồi hoàn 100% giá trị" },
       { id: "thanh_lý", name: "Kho Hàng Thanh Lý", step: 5, color: "purple", desc: "Bồi hoàn <100% hoặc xuất bán thanh lý" }
     ];
@@ -691,29 +757,43 @@
       renderAll();
     }
 
-    // Switch Tabs
+    // Switch Tabs (Both Desktop & Mobile)
     function switchTab(tabId) {
       document.querySelectorAll("main > section").forEach(sec => sec.classList.add("hidden"));
+      
+      // Desktop tabs
       document.querySelectorAll(".tab-btn").forEach(btn => {
-        btn.classList.remove("bg-white", "text-orange-600", "font-semibold", "shadow-sm", "border");
+        btn.classList.remove("bg-white", "text-orange-600", "font-semibold", "shadow-xs", "border");
         btn.classList.add("text-slate-600");
       });
+      const dBtn = document.getElementById("tab-" + tabId);
+      if (dBtn) {
+        dBtn.classList.add("bg-white", "text-orange-600", "font-semibold", "shadow-xs", "border");
+        dBtn.classList.remove("text-slate-600");
+      }
 
+      // Mobile bottom nav buttons
+      document.querySelectorAll(".mobile-nav-btn").forEach(btn => {
+        btn.classList.remove("text-orange-600", "font-bold");
+        btn.classList.add("text-slate-600");
+      });
+      const mBtn = document.getElementById("m-tab-" + tabId);
+      if (mBtn) {
+        mBtn.classList.add("text-orange-600", "font-bold");
+        mBtn.classList.remove("text-slate-600");
+      }
+
+      // Target section
       const target = document.getElementById("view-" + tabId);
       if (target) target.classList.remove("hidden");
-
-      const btn = document.getElementById("tab-" + tabId);
-      if (btn) {
-        btn.classList.add("bg-white", "text-orange-600", "font-semibold", "shadow-sm", "border");
-        btn.classList.remove("text-slate-600");
-      }
 
       if (tabId === 'analytics') {
         renderCharts();
       }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Render Stats
+    // Render Stats & Badges
     function renderStats() {
       const counts = {
         "sàn_trả": 0,
@@ -733,18 +813,44 @@
       document.getElementById("stat-kho-hoan").innerText = counts["hoàn_shopee"];
       document.getElementById("stat-kho-thanh-ly").innerText = counts["thanh_lý"];
 
+      // Desktop badges
       document.getElementById("badge-intake").innerText = counts["sàn_trả"];
       document.getElementById("badge-inspect").innerText = counts["sàn_trả"];
       document.getElementById("badge-claims").innerText = counts["chờ_xử_lý"];
+
+      // Mobile badges
+      const mIntake = document.getElementById("m-badge-intake");
+      const mInspect = document.getElementById("m-badge-inspect");
+      const mClaims = document.getElementById("m-badge-claims");
+
+      if (counts["sàn_trả"] > 0) {
+        mIntake.innerText = counts["sàn_trả"];
+        mIntake.classList.remove("hidden");
+        mInspect.innerText = counts["sàn_trả"];
+        mInspect.classList.remove("hidden");
+      } else {
+        mIntake.classList.add("hidden");
+        mInspect.classList.add("hidden");
+      }
+
+      if (counts["chờ_xử_lý"] > 0) {
+        mClaims.innerText = counts["chờ_xử_lý"];
+        mClaims.classList.remove("hidden");
+      } else {
+        mClaims.classList.add("hidden");
+      }
     }
 
-    // Render Ticket Table in Tab 1
+    // Render Ticket Table (Desktop) & Cards (Mobile)
     function renderTicketTable() {
       const tbody = document.getElementById("ticketTableBody");
+      const mobileContainer = document.getElementById("ticketCardsMobile");
       tbody.innerHTML = "";
+      mobileContainer.innerHTML = "";
 
       if (tickets.length === 0) {
         tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Chưa có ticket nào.</td></tr>`;
+        mobileContainer.innerHTML = `<div class="text-center py-8 text-slate-400 text-xs">Chưa có ticket nào.</div>`;
         return;
       }
 
@@ -753,13 +859,13 @@
 
         let conditionBadge = "";
         if (t.condition === 'normal') {
-          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-medium">Bình Thường</span>`;
+          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[10px] font-medium">Bình Thường</span>`;
         } else if (t.condition === 'minor_damage') {
-          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-medium">Hư Hỏng Nhẹ</span>`;
+          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-medium">Hư Hỏng Nhẹ</span>`;
         } else if (t.condition === 'major_damage') {
-          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-[11px] font-medium">Hư Hỏng Nặng</span>`;
+          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-[10px] font-medium">Hư Hỏng Nặng</span>`;
         } else {
-          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-medium">Chờ Giám Định</span>`;
+          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-medium">Chờ Giám Định</span>`;
         }
 
         let claimBadge = "";
@@ -771,10 +877,11 @@
           claimBadge = `<span class="text-slate-400 text-[11px]">-</span>`;
         }
 
+        // 1. Desktop Table Row
         const tr = document.createElement("tr");
         tr.className = "hover:bg-slate-50/80 transition";
         tr.innerHTML = `
-          <td class="px-6 py-3 font-semibold text-slate-900">
+          <td class="px-5 py-3 font-semibold text-slate-900">
             <div>${t.order_id}</div>
             <div class="text-[10px] text-slate-400 font-normal">${t.id} · ${t.carrier}</div>
           </td>
@@ -790,13 +897,9 @@
               ${wh.name}
             </span>
           </td>
-          <td class="px-4 py-3">
-            ${conditionBadge}
-          </td>
-          <td class="px-4 py-3">
-            ${claimBadge}
-          </td>
-          <td class="px-6 py-3 text-right space-x-1">
+          <td class="px-4 py-3">${conditionBadge}</td>
+          <td class="px-4 py-3">${claimBadge}</td>
+          <td class="px-5 py-3 text-right space-x-1 shrink-0">
             ${t.warehouse_id === 'sàn_trả' ? `
               <button onclick="openInspectionModal('${t.id}')" class="px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-[11px]">
                 Giám Định
@@ -813,6 +916,47 @@
           </td>
         `;
         tbody.appendChild(tr);
+
+        // 2. Mobile Responsive Card
+        const card = document.createElement("div");
+        card.className = "ticket-card-mobile p-3.5 rounded-xl border border-slate-200 bg-white shadow-xs space-y-2 text-xs";
+        card.innerHTML = `
+          <div class="flex items-start justify-between gap-2 border-b border-slate-100 pb-2">
+            <div>
+              <div class="font-bold text-slate-900 text-sm">${t.order_id}</div>
+              <div class="text-[10px] text-slate-400">${t.carrier} · Vận đơn: <span class="font-mono text-slate-700">${t.tracking_no}</span></div>
+            </div>
+            <span class="px-2 py-0.5 rounded font-medium text-[10px] bg-${wh.color}-50 text-${wh.color}-700 border border-${wh.color}-200 shrink-0">
+              ${wh.name}
+            </span>
+          </div>
+
+          <div class="font-medium text-slate-800">${t.sku}</div>
+          <div class="text-[11px] text-slate-500">${t.condition_text || 'Chờ mở kiện giám định'}</div>
+
+          <div class="flex items-center justify-between pt-1 text-[10px]">
+            <div class="flex items-center gap-1.5">
+              ${conditionBadge}
+              ${claimBadge}
+            </div>
+            <div class="flex items-center gap-1.5">
+              <a href="${t.drive_url || '#'}" target="_blank" class="px-2 py-1 rounded border border-slate-200 text-slate-600 flex items-center gap-1">
+                <i class="fa-brands fa-google-drive text-amber-500"></i> Video
+              </a>
+              ${t.warehouse_id === 'sàn_trả' ? `
+                <button onclick="openInspectionModal('${t.id}')" class="px-2.5 py-1 rounded bg-blue-600 text-white font-semibold">
+                  Giám Định
+                </button>
+              ` : ''}
+              ${t.warehouse_id === 'chờ_xử_lý' ? `
+                <button onclick="openAiClaimModal('${t.id}')" class="px-2.5 py-1 rounded bg-amber-600 text-white font-semibold">
+                  Claim AI (${t.claim_attempts})
+                </button>
+              ` : ''}
+            </div>
+          </div>
+        `;
+        mobileContainer.appendChild(card);
       });
     }
 
@@ -824,29 +968,29 @@
       document.getElementById("intake-count").innerText = `${intakeItems.length} kiện chờ`;
 
       if (intakeItems.length === 0) {
-        container.innerHTML = `<div class="p-8 text-center text-slate-400 border border-dashed rounded-xl">Không có kiện nào đang tồn tại Kho Sàn Trả.</div>`;
+        container.innerHTML = `<div class="p-6 text-center text-slate-400 border border-dashed rounded-xl text-xs">Không có kiện nào tồn tại Kho Sàn Trả.</div>`;
         return;
       }
 
       intakeItems.forEach(t => {
         const item = document.createElement("div");
-        item.className = "p-4 rounded-xl border border-slate-200 hover:border-orange-300 transition bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs";
+        item.className = "p-3.5 rounded-xl border border-slate-200 hover:border-orange-300 transition bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2.5 text-xs";
         item.innerHTML = `
-          <div class="space-y-1">
-            <div class="flex items-center gap-2">
+          <div class="space-y-1 w-full sm:w-auto">
+            <div class="flex items-center gap-1.5 flex-wrap">
               <span class="font-bold text-slate-900">${t.order_id}</span>
-              <span class="px-2 py-0.5 rounded bg-orange-100 text-orange-800 font-semibold text-[10px]">${t.carrier}</span>
-              <span class="text-slate-400">Vận đơn: <code class="font-mono text-slate-700">${t.tracking_no}</code></span>
+              <span class="px-1.5 py-0.2 rounded bg-orange-100 text-orange-800 font-semibold text-[10px]">${t.carrier}</span>
+              <span class="text-slate-400 text-[10px]">Vận đơn: <code class="font-mono text-slate-700">${t.tracking_no}</code></span>
             </div>
             <div class="font-medium text-slate-800">${t.sku}</div>
-            <div class="text-slate-500 text-[11px]">Ghi chú bóc kiện: ${t.condition_text}</div>
+            <div class="text-slate-500 text-[11px]">${t.condition_text}</div>
           </div>
-          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end shrink-0 pt-1 sm:pt-0">
             <a href="${t.drive_url}" target="_blank" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-white flex items-center gap-1">
-              <i class="fa-brands fa-google-drive text-amber-500"></i> Video Bóc Seal
+              <i class="fa-brands fa-google-drive text-amber-500"></i> Video
             </a>
             <button onclick="openInspectionModal('${t.id}')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition">
-              Chuyển Giám Định BH
+              Giám Định
             </button>
           </div>
         `;
@@ -861,38 +1005,38 @@
       const pendingItems = tickets.filter(t => t.warehouse_id === 'sàn_trả');
 
       if (pendingItems.length === 0) {
-        container.innerHTML = `<div class="p-8 text-center text-slate-400 border border-dashed rounded-xl">Tất cả kiện hàng tại Kho Sàn Trả đã được giám định và điều chuyển kho!</div>`;
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 border border-dashed rounded-xl text-xs">Tất cả kiện hàng tại Kho Sàn Trả đã được giám định hoàn tất!</div>`;
         return;
       }
 
       pendingItems.forEach(t => {
         const card = document.createElement("div");
-        card.className = "p-5 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-3 text-xs";
+        card.className = "p-4 sm:p-5 rounded-xl border border-slate-200 bg-white shadow-xs space-y-3 text-xs";
         card.innerHTML = `
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-100 pb-2">
             <div>
               <span class="font-bold text-slate-900 text-sm">${t.sku}</span>
-              <span class="text-slate-400 ml-2">Đơn: ${t.order_id} · Vận đơn: ${t.tracking_no}</span>
+              <span class="text-slate-400 ml-1 text-xs block sm:inline">Đơn: ${t.order_id} · Vận đơn: ${t.tracking_no}</span>
             </div>
-            <span class="px-2.5 py-1 rounded bg-blue-100 text-blue-800 font-semibold text-[11px]">Chờ Kỹ Thuật Test</span>
+            <span class="px-2 py-0.5 rounded bg-blue-100 text-blue-800 font-semibold text-[10px] self-start sm:self-auto">Chờ Test Máy</span>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-slate-600 bg-slate-50 p-3 rounded-xl">
-            <div><span class="font-semibold text-slate-800">Đơn vị vận chuyển:</span> ${t.carrier}</div>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-slate-600 bg-slate-50 p-2.5 rounded-xl text-[11px]">
+            <div><span class="font-semibold text-slate-800">Đơn vị:</span> ${t.carrier}</div>
             <div><span class="font-semibold text-slate-800">Ngày nhập:</span> ${t.received_date}</div>
             <div>
-              <a href="${t.drive_url}" target="_blank" class="text-blue-600 underline hover:text-blue-800">
-                <i class="fa-brands fa-google-drive text-amber-500 mr-1"></i> Xem Video Mở Kiện
+              <a href="${t.drive_url}" target="_blank" class="text-blue-600 underline">
+                <i class="fa-brands fa-google-drive text-amber-500 mr-1"></i> Xem Video Bóc Seal
               </a>
             </div>
           </div>
 
-          <div class="flex justify-end gap-2 pt-1">
-            <button onclick="quickApproveNormal('${t.id}')" class="px-3.5 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition flex items-center gap-1.5">
-              <i class="fa-solid fa-check"></i> Xác Nhận Bình Thường &rarr; Nhập Kho Bán
+          <div class="flex flex-col sm:flex-row justify-end gap-2 pt-1">
+            <button onclick="quickApproveNormal('${t.id}')" class="w-full sm:w-auto px-3 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-check"></i> Bình Thường &rarr; Nhập Kho Bán
             </button>
-            <button onclick="openInspectionModal('${t.id}')" class="px-3.5 py-2 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 transition flex items-center gap-1.5">
-              <i class="fa-solid fa-triangle-exclamation"></i> Báo Hư Hỏng &rarr; Chuyển Kho Chờ Sàn
+            <button onclick="openInspectionModal('${t.id}')" class="w-full sm:w-auto px-3 py-2 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-triangle-exclamation"></i> Báo Hư Hỏng &rarr; Kho Chờ Sàn
             </button>
           </div>
         `;
@@ -907,54 +1051,47 @@
       const claimItems = tickets.filter(t => t.warehouse_id === 'chờ_xử_lý');
 
       if (claimItems.length === 0) {
-        container.innerHTML = `<div class="p-8 text-center text-slate-400 border border-dashed rounded-xl">Hiện không có đơn nào ở Kho Chờ Xử Lý Sàn.</div>`;
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 border border-dashed rounded-xl text-xs">Hiện không có đơn nào ở Kho Chờ Xử Lý Sàn.</div>`;
         return;
       }
 
       claimItems.forEach(t => {
         const isEscalated = t.claim_attempts >= 5;
         const card = document.createElement("div");
-        card.className = `p-5 rounded-2xl border ${isEscalated ? 'border-red-300 bg-red-50/30' : 'border-slate-200 bg-white'} shadow-sm space-y-3 text-xs`;
+        card.className = `p-4 sm:p-5 rounded-xl border ${isEscalated ? 'border-red-300 bg-red-50/40' : 'border-slate-200 bg-white'} shadow-xs space-y-3 text-xs`;
         
         card.innerHTML = `
-          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-1.5 border-b border-slate-100 pb-2">
             <div>
               <span class="font-bold text-slate-900 text-sm">${t.sku}</span>
-              <span class="text-slate-400 ml-2">Đơn: ${t.order_id}</span>
+              <span class="text-slate-400 ml-1 text-xs block sm:inline">Đơn: ${t.order_id}</span>
             </div>
-            <div class="flex items-center gap-2">
-              <span class="px-2.5 py-1 rounded ${isEscalated ? 'bg-red-600 text-white font-bold animate-pulse' : 'bg-amber-100 text-amber-800 font-semibold'} text-[11px]">
-                ${isEscalated ? '⚠️ ĐÃ QUA 5 VÒNG - CẦN NGƯỜI PHỤ TRÁCH' : `Vòng Khiếu Nại: ${t.claim_attempts}/5`}
-              </span>
-            </div>
+            <span class="px-2 py-0.5 rounded ${isEscalated ? 'bg-red-600 text-white font-bold animate-pulse' : 'bg-amber-100 text-amber-800 font-semibold'} text-[10px] self-start sm:self-auto">
+              ${isEscalated ? '⚠️ ĐÃ QUA 5 VÒNG - CẦN ESCALATION' : `Vòng Claim: ${t.claim_attempts}/5`}
+            </span>
           </div>
 
-          <div class="space-y-1 text-slate-600">
+          <div class="space-y-1.5 text-slate-600 text-xs">
             <div><span class="font-semibold text-slate-800">Biên bản lỗi Kỹ Thuật:</span> ${t.condition_text}</div>
-            <div><span class="font-semibold text-slate-800">Mục tiêu đòi bồi hoàn:</span> <b>${t.claim_target}%</b> giá trị đơn</div>
+            <div><span class="font-semibold text-slate-800">Mức đòi bồi hoàn:</span> <b>${t.claim_target}%</b> giá trị đơn</div>
             ${t.shopee_response ? `
-              <div class="p-2.5 bg-amber-50 rounded-lg border border-amber-200 text-amber-900">
-                <span class="font-semibold">Phản hồi gần nhất của Shopee:</span> ${t.shopee_response}
+              <div class="p-2.5 bg-amber-50 rounded-lg border border-amber-200 text-amber-900 text-[11px]">
+                <span class="font-semibold">Phản hồi của Shopee:</span> ${t.shopee_response}
               </div>
-            ` : '<div class="text-slate-400 italic">Chưa có phản hồi từ Shopee. Cần CS gửi khiếu nại.</div>'}
+            ` : '<div class="text-slate-400 italic text-[11px]">Chưa có phản hồi từ Shopee. Cần CS gửi khiếu nại.</div>'}
           </div>
 
-          <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
-            <div class="flex items-center gap-2">
-              <button onclick="openAiClaimModal('${t.id}')" class="px-3 py-1.5 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700 transition flex items-center gap-1.5">
-                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Viết Khiếu Nại Shopee (Vòng ${t.claim_attempts + 1})
-              </button>
-              <a href="${t.drive_url}" target="_blank" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
-                <i class="fa-brands fa-google-drive text-amber-500"></i> Video Bằng Chứng
-              </a>
-            </div>
+          <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2 pt-2 border-t border-slate-100">
+            <button onclick="openAiClaimModal('${t.id}')" class="px-3 py-2 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700 transition flex items-center justify-center gap-1.5">
+              <i class="fa-solid fa-wand-magic-sparkles"></i> AI Viết Đơn Khiếu Nại (Vòng ${t.claim_attempts + 1})
+            </button>
 
-            <div class="flex items-center gap-1.5">
-              <button onclick="resolveClaimSuccess('${t.id}')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition flex items-center gap-1">
-                <i class="fa-solid fa-check"></i> Shopee Bồi Hoàn 100% &rarr; Kho Hoàn
+            <div class="grid grid-cols-2 sm:flex sm:items-center gap-1.5">
+              <button onclick="resolveClaimSuccess('${t.id}')" class="px-2.5 py-1.5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 text-center">
+                Hoàn 100% &rarr; Kho Hoàn
               </button>
-              <button onclick="resolveClaimPartial('${t.id}')" class="px-3 py-1.5 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition flex items-center gap-1">
-                <i class="fa-solid fa-tags"></i> Bồi Hoàn &lt;100% &rarr; Kho Thanh Lý
+              <button onclick="resolveClaimPartial('${t.id}')" class="px-2.5 py-1.5 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 text-center">
+                Hoàn &lt;100% &rarr; Thanh Lý
               </button>
             </div>
           </div>
@@ -964,14 +1101,31 @@
     }
 
     // Render Tab 5: 5 Warehouses Grid
+    let currentWhFilter = 'all';
+    function filterMobileWarehouse(whId) {
+      currentWhFilter = whId;
+      document.querySelectorAll(".wh-filter-btn").forEach(btn => {
+        if (btn.getAttribute("data-wh") === whId) {
+          btn.className = "wh-filter-btn px-2.5 py-1 rounded-lg text-xs font-semibold bg-slate-900 text-white shrink-0";
+        } else {
+          btn.className = "wh-filter-btn px-2.5 py-1 rounded-lg text-xs text-slate-600 bg-white border border-slate-200 shrink-0";
+        }
+      });
+      renderWarehousesGrid();
+    }
+
     function renderWarehousesGrid() {
       const container = document.getElementById("warehousesGrid");
       container.innerHTML = "";
 
       WAREHOUSES.forEach(wh => {
+        if (currentWhFilter !== 'all' && currentWhFilter !== wh.id) {
+          return;
+        }
+
         const colItems = tickets.filter(t => t.warehouse_id === wh.id);
         const col = document.createElement("div");
-        col.className = "bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3 flex flex-col";
+        col.className = "bg-white rounded-xl border border-slate-200 p-3.5 shadow-xs space-y-2.5 flex flex-col";
         col.innerHTML = `
           <div class="flex items-center justify-between border-b border-slate-100 pb-2">
             <div>
@@ -983,14 +1137,14 @@
             </span>
           </div>
 
-          <div class="space-y-2 flex-1 overflow-y-auto max-h-[500px]">
+          <div class="space-y-2 flex-1 overflow-y-auto max-h-[420px]">
             ${colItems.map(item => `
-              <div class="p-2.5 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-white transition text-[11px] space-y-1">
+              <div class="p-2.5 rounded-lg border border-slate-200/80 bg-slate-50 hover:bg-white transition text-[11px] space-y-1">
                 <div class="font-bold text-slate-900">${item.order_id}</div>
                 <div class="text-slate-700 line-clamp-1">${item.sku}</div>
                 <div class="text-[10px] text-slate-400">Vận đơn: ${item.tracking_no}</div>
               </div>
-            `).join('') || `<div class="text-center py-6 text-slate-400 text-[11px]">Trống</div>`}
+            `).join('') || `<div class="text-center py-6 text-slate-400 text-xs">Trống</div>`}
           </div>
         `;
         container.appendChild(col);
@@ -1026,11 +1180,11 @@
         if (targetWh === 'ban_binh_thuong') {
           t.warehouse_id = 'bán_bình_thường';
           t.claim_status = 'completed';
-          showToast(`✅ Đã giám định: Hàng bình thường, nhập vào KHO BÁN BÌNH THƯỜNG.`);
+          showToast(`✅ Đã giám định: Hàng bình thường, nhập KHO BÁN BÌNH THƯỜNG.`);
         } else {
           t.warehouse_id = 'chờ_xử_lý';
           t.claim_status = 'pending_shopee';
-          showToast(`⚠️ Đã giám định: Có lỗi, chuyển KHO CHỜ XỬ LÝ SÀN và mở Claim.`);
+          showToast(`⚠️ Đã giám định: Có lỗi, chuyển KHO CHỜ XỬ LÝ SÀN để mở Claim.`);
         }
         saveState();
         closeInspectionModal();
@@ -1058,7 +1212,6 @@
       document.getElementById("aiAttemptNo").innerText = t.claim_attempts + 1;
       document.getElementById("aiClaimDate").value = new Date().toISOString().split('T')[0];
 
-      // Auto Generate AI prompt based on policy
       const draft = `Kính gửi Bộ Phận Hỗ Trợ Người Bán Shopee (Claim Hàng Đổi Trả),\n\nShop xin gửi biên bản khiếu nại hàng hoàn cho đơn hàng ${t.order_id} (Mã vận đơn: ${t.tracking_no}).\n\n1. Sản phẩm: ${t.sku}\n2. Tình trạng thực tế khi mở kiện: ${t.condition_text}\n3. Bằng chứng video bóc seal & kiểm định: ${t.drive_url}\n4. Căn cứ chính sách TMĐT Shopee về hàng hoàn vỡ hỏng do ĐVVC, Shop yêu cầu bồi hoàn ${t.claim_target}% giá trị đơn hàng.\n\nRất mong Shopee phản hồi hỗ trợ trong vòng 2-3 ngày làm việc theo quy định.\nXin cảm ơn!`;
 
       document.getElementById("aiDraftText").value = draft;
@@ -1076,7 +1229,7 @@
         t.shopee_response = `Đã gửi văn bản khiếu nại vòng ${t.claim_attempts} tới Shopee. Chờ sàn phản hồi trong 2-3 ngày.`;
         if (t.claim_attempts >= 5) {
           t.escalated = true;
-          showToast(`🚨 Đơn ${t.order_id} đã qua 5 vòng claim! Kích hoạt chế độ Escalation cho người phụ trách.`);
+          showToast(`🚨 Đơn ${t.order_id} đã qua 5 vòng claim! Kích hoạt chế độ Escalation.`);
         } else {
           showToast(`🚀 Đã ghi nhận gửi claim Vòng ${t.claim_attempts} tới Shopee.`);
         }
@@ -1093,7 +1246,7 @@
         t.claim_status = 'full_refund';
         t.shopee_response = 'Shopee đồng ý bồi hoàn 100% giá trị.';
         saveState();
-        showToast(`🎉 Shopee bồi hoàn 100%! Đã chuyển đơn ${t.order_id} sang KHO HOÀN SHOPEE.`);
+        showToast(`🎉 Shopee bồi hoàn 100%! Đã chuyển đơn sang KHO HOÀN SHOPEE.`);
       }
     }
 
@@ -1104,7 +1257,7 @@
         t.claim_status = 'partial_paid';
         t.shopee_response = 'Shopee bồi hoàn 1 phần hoặc không giải quyết. Đã chuyển kho thanh lý xuất bán.';
         saveState();
-        showToast(`📦 Đã chuyển đơn ${t.order_id} sang KHO HÀNG THANH LÝ để xuất bán.`);
+        showToast(`📦 Đã chuyển đơn sang KHO HÀNG THANH LÝ để xuất bán.`);
       }
     }
 
@@ -1139,15 +1292,22 @@
 
     function openNewTicketModal() {
       switchTab('intake');
-      document.getElementById("inpOrderId").focus();
+      const inp = document.getElementById("inpOrderId");
+      if (inp) inp.focus();
     }
 
     // Filter Table
     function filterTicketTable() {
       const q = document.getElementById("ticketSearch").value.toLowerCase();
+      // Desktop rows
       document.querySelectorAll("#ticketTableBody tr").forEach(tr => {
         const text = tr.innerText.toLowerCase();
         tr.style.display = text.includes(q) ? "" : "none";
+      });
+      // Mobile cards
+      document.querySelectorAll(".ticket-card-mobile").forEach(card => {
+        const text = card.innerText.toLowerCase();
+        card.style.display = text.includes(q) ? "" : "none";
       });
     }
 
@@ -1165,11 +1325,11 @@
 
     // Lark Suite Simulation
     function triggerLarkTestMessage() {
-      showToast("🔔 Đã kích hoạt lệnh bắn báo cáo tồn kho sang nhóm chat Lark qua Bot!");
+      showToast("🔔 Đã bắn báo cáo tồn kho sang nhóm chat Lark qua Bot!");
     }
     function triggerLarkEscalationAlert() {
       const escCount = tickets.filter(t => t.claim_attempts >= 5).length;
-      showToast(`🚨 Đã gửi cảnh báo ${escCount} đơn quá 5 vòng claim sang nhóm Lark để lãnh đạo can thiệp!`);
+      showToast(`🚨 Đã gửi cảnh báo ${escCount} đơn quá 5 vòng claim sang nhóm Lark!`);
     }
 
     // Charts
@@ -1197,7 +1357,7 @@
         options: {
           responsive: true,
           maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 9 } } } }
         }
       });
 
@@ -1206,7 +1366,7 @@
       chart2 = new Chart(ctx2, {
         type: 'bar',
         data: {
-          labels: ['Hoàn 100%', 'Bồi Hoàn Một Phần', 'Đang Chờ Shopee', 'Chuyển Bán Lại'],
+          labels: ['Hoàn 100%', 'Một Phần', 'Chờ Sàn', 'Bán Lại'],
           datasets: [{
             label: 'Số đơn',
             data: [
@@ -1222,7 +1382,7 @@
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
-          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1, font: { size: 10 } } }, x: { ticks: { font: { size: 9 } } } }
         }
       });
     }
@@ -1230,7 +1390,7 @@
     // Refresh & Sync
     function refreshData() {
       renderAll();
-      showToast("🔄 Đã cập nhật và làm mới dữ liệu hệ thống!");
+      showToast("🔄 Đã làm mới dữ liệu hệ thống!");
     }
 
     function renderAll() {
@@ -1244,7 +1404,6 @@
 
     // Initialize
     document.addEventListener("DOMContentLoaded", () => {
-      document.getElementById("syncStatus").classList.remove("hidden");
       renderAll();
     });
   </script>
