@@ -1,0 +1,1252 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hệ Thống Xử Lý Hàng Đổi Trả Sàn TMĐT (Shopee Return Hub)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+    .badge-step { @apply text-xs font-semibold px-2.5 py-0.5 rounded-full; }
+    /* Custom scrollbar */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+  </style>
+</head>
+<body class="bg-slate-50 text-slate-800 antialiased min-h-screen flex flex-col">
+
+  <!-- TOP NAVIGATION -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-40 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-orange-500 to-amber-500 flex items-center justify-center text-white shadow-md shadow-orange-500/20">
+          <i class="fa-solid fa-boxes-packing text-lg"></i>
+        </div>
+        <div>
+          <h1 class="text-lg font-bold text-slate-900 leading-tight flex items-center gap-2">
+            Hệ Thống Xử Lý Hàng Đổi Trả TMĐT
+            <span class="bg-orange-100 text-orange-700 text-xs px-2 py-0.5 rounded-md font-medium border border-orange-200">Shopee Ecom</span>
+          </h1>
+          <p class="text-xs text-slate-500">Giám sát 5 Kho · Giám Định · Claim AI Shopee · Tích hợp Lark & Drive</p>
+        </div>
+      </div>
+
+      <!-- Action Quick Bar -->
+      <div class="flex items-center space-x-3">
+        <a href="https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing" target="_blank" 
+           class="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-slate-200 text-xs font-medium text-slate-700 hover:bg-slate-50 hover:text-blue-600 transition">
+          <i class="fa-brands fa-google-drive text-amber-500"></i>
+          <span>Thư viện Media Drive</span>
+          <i class="fa-solid fa-arrow-up-right-from-square text-[10px] text-slate-400"></i>
+        </a>
+
+        <div class="h-6 w-px bg-slate-200"></div>
+
+        <button onclick="openNewTicketModal()" 
+                class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-orange-600 text-white text-xs font-semibold hover:bg-orange-700 transition shadow-sm shadow-orange-600/30">
+          <i class="fa-solid fa-plus"></i>
+          <span>Tiếp Nhận Đơn Hoàn Mới</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- SUB TABS -->
+    <div class="bg-slate-100/80 border-t border-slate-200 px-4 sm:px-6 lg:px-8">
+      <div class="max-w-7xl mx-auto flex space-x-1 sm:space-x-4 overflow-x-auto py-1.5 text-xs font-medium text-slate-600" id="mainTabs">
+        <button onclick="switchTab('pipeline')" id="tab-pipeline" class="tab-btn px-3 py-1.5 rounded-md bg-white text-orange-600 font-semibold shadow-sm border border-slate-200/60 flex items-center gap-2">
+          <i class="fa-solid fa-diagram-project"></i>
+          <span>1. Quy Trình & Pipeline 5 Kho</span>
+        </button>
+        <button onclick="switchTab('intake')" id="tab-intake" class="tab-btn px-3 py-1.5 rounded-md hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-dolly"></i>
+          <span>2. Tiếp Nhận Kho Sàn Trả</span>
+          <span id="badge-intake" class="px-1.5 py-0.2 bg-orange-100 text-orange-700 rounded-full text-[10px]">3</span>
+        </button>
+        <button onclick="switchTab('inspection')" id="tab-inspection" class="tab-btn px-3 py-1.5 rounded-md hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-screwdriver-wrench"></i>
+          <span>3. Giám Định Kỹ Thuật / BH</span>
+          <span id="badge-inspect" class="px-1.5 py-0.2 bg-blue-100 text-blue-700 rounded-full text-[10px]">2</span>
+        </button>
+        <button onclick="switchTab('claims')" id="tab-claims" class="tab-btn px-3 py-1.5 rounded-md hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-robot"></i>
+          <span>4. CS-Ecom Claim Shopee & AI</span>
+          <span id="badge-claims" class="px-1.5 py-0.2 bg-amber-100 text-amber-700 rounded-full text-[10px]">2</span>
+        </button>
+        <button onclick="switchTab('warehouses')" id="tab-warehouses" class="tab-btn px-3 py-1.5 rounded-md hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-warehouse"></i>
+          <span>5. Quản Lý Tồn 5 Kho</span>
+        </button>
+        <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn px-3 py-1.5 rounded-md hover:bg-white/80 hover:text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-chart-pie"></i>
+          <span>6. Báo Cáo & Tích Hợp Lark</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- MAIN BODY CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+
+    <!-- STATUS ALERT NOTIFICATION BAR -->
+    <div id="syncStatus" class="hidden bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs px-4 py-2.5 rounded-xl flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+        <span>Đã đồng bộ trực tiếp với Supabase PostgreSQL (Schema: <code class="font-bold">san_hoan</code>).</span>
+      </div>
+      <button onclick="refreshData()" class="text-emerald-700 font-semibold hover:underline flex items-center gap-1">
+        <i class="fa-solid fa-rotate text-[11px]"></i> Tải lại
+      </button>
+    </div>
+
+    <!-- TAB 1: PIPELINE & FLOWCHART VIEW -->
+    <section id="view-pipeline" class="space-y-6">
+      <!-- 5 WAREHOUSES KPI CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+        <!-- Kho 1 -->
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow transition">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold uppercase text-slate-500">Kho 1 · Tiếp nhận</span>
+            <div class="w-7 h-7 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center text-xs font-bold">1</div>
+          </div>
+          <h3 class="text-sm font-bold text-slate-800">Kho Sàn Trả</h3>
+          <p class="text-2xl font-black text-orange-600 mt-1" id="stat-kho-san-tra">0</p>
+          <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
+            <i class="fa-solid fa-clock"></i> Chờ khui kiện & quay video
+          </div>
+        </div>
+
+        <!-- Kho 2 -->
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow transition">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold uppercase text-slate-500">Kho 2 · Xuất Bán</span>
+            <div class="w-7 h-7 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center text-xs font-bold">2</div>
+          </div>
+          <h3 class="text-sm font-bold text-slate-800">Kho Bán Bình Thường</h3>
+          <p class="text-2xl font-black text-emerald-600 mt-1" id="stat-kho-ban">0</p>
+          <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
+            <i class="fa-solid fa-check-double text-emerald-500"></i> Hàng nguyên vẹn, nhập kho bán
+          </div>
+        </div>
+
+        <!-- Kho 3 -->
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow transition">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold uppercase text-slate-500">Kho 3 · Chờ Sàn</span>
+            <div class="w-7 h-7 rounded-lg bg-amber-100 text-amber-600 flex items-center justify-center text-xs font-bold">3</div>
+          </div>
+          <h3 class="text-sm font-bold text-slate-800">Kho Chờ Xử Lý Sàn</h3>
+          <p class="text-2xl font-black text-amber-600 mt-1" id="stat-kho-cho">0</p>
+          <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
+            <i class="fa-solid fa-hourglass-half text-amber-500"></i> Hư hỏng, đang claim Shopee
+          </div>
+        </div>
+
+        <!-- Kho 4 -->
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow transition">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold uppercase text-slate-500">Kho 4 · Hoàn 100%</span>
+            <div class="w-7 h-7 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center text-xs font-bold">4</div>
+          </div>
+          <h3 class="text-sm font-bold text-slate-800">Kho Hoàn Shopee</h3>
+          <p class="text-2xl font-black text-blue-600 mt-1" id="stat-kho-hoan">0</p>
+          <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
+            <i class="fa-solid fa-hand-holding-dollar text-blue-500"></i> Shopee bồi hoàn 100% tiền
+          </div>
+        </div>
+
+        <!-- Kho 5 -->
+        <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm hover:shadow transition">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-semibold uppercase text-slate-500">Kho 5 · Thanh Lý</span>
+            <div class="w-7 h-7 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center text-xs font-bold">5</div>
+          </div>
+          <h3 class="text-sm font-bold text-slate-800">Kho Hàng Thanh Lý</h3>
+          <p class="text-2xl font-black text-purple-600 mt-1" id="stat-kho-thanh-ly">0</p>
+          <div class="mt-2 text-[11px] text-slate-500 flex items-center gap-1">
+            <i class="fa-solid fa-tags text-purple-500"></i> Bồi hoàn &lt;100% hoặc xuất bán thanh lý
+          </div>
+        </div>
+      </div>
+
+      <!-- WORKFLOW DIAGRAM CARD -->
+      <div class="bg-white rounded-2xl p-6 border border-slate-200 shadow-sm">
+        <div class="flex items-center justify-between pb-4 border-b border-slate-100">
+          <div>
+            <h2 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-arrows-split-up-and-left text-orange-600"></i>
+              Sơ Đồ Quy Trình Vòng Đời Xử Lý Hàng Đổi Trả
+            </h2>
+            <p class="text-xs text-slate-500 mt-0.5">Theo dõi chi tiết từ khi mở Ticket đến khi nhập kho bán thông thường hoặc thanh lý xuất bán</p>
+          </div>
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-700 text-xs font-medium">
+            <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+            Hệ Thống Trực Tuyến
+          </span>
+        </div>
+
+        <!-- Stepper Visual -->
+        <div class="mt-6 grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
+          <!-- Step 1 -->
+          <div class="p-4 rounded-xl bg-orange-50/60 border border-orange-200/80">
+            <div class="flex items-center justify-between font-bold text-orange-900 mb-2">
+              <span>BƯỚC 1: TIẾP NHẬN</span>
+              <i class="fa-solid fa-box text-orange-600"></i>
+            </div>
+            <p class="text-slate-600 leading-relaxed mb-2">Thủ kho đối chiếu vận đơn theo danh sách sàn trả, quay video ngoại quan + bóc kiện, lưu Drive & lập biên bản nhận hàng.</p>
+            <span class="inline-block px-2 py-0.5 rounded bg-white text-orange-800 font-semibold border border-orange-200">Kho Sàn Trả</span>
+          </div>
+
+          <!-- Step 2 -->
+          <div class="p-4 rounded-xl bg-blue-50/60 border border-blue-200/80">
+            <div class="flex items-center justify-between font-bold text-blue-900 mb-2">
+              <span>BƯỚC 2: GIÁM ĐỊNH</span>
+              <i class="fa-solid fa-stethoscope text-blue-600"></i>
+            </div>
+            <p class="text-slate-600 leading-relaxed mb-2">Bộ phận Kỹ thuật / Bảo hành kiểm tra ngoại quan & test hoạt động. Phân loại tình trạng kèm hình ảnh/video thẩm định.</p>
+            <div class="flex gap-1.5 flex-wrap">
+              <span class="px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800 font-medium">Nguyên vẹn &rarr; Kho Bán</span>
+              <span class="px-1.5 py-0.5 rounded bg-amber-100 text-amber-800 font-medium">Hư hỏng &rarr; Kho Chờ Sàn</span>
+            </div>
+          </div>
+
+          <!-- Step 3 -->
+          <div class="p-4 rounded-xl bg-amber-50/60 border border-amber-200/80">
+            <div class="flex items-center justify-between font-bold text-amber-900 mb-2">
+              <span>BƯỚC 3: CLAIM SHOPEE</span>
+              <i class="fa-solid fa-handshake-angle text-amber-600"></i>
+            </div>
+            <p class="text-slate-600 leading-relaxed mb-2">CS-Ecom / AI tự động khiếu nại lên Shopee. Phản hồi trong 24h mỗi khi sàn trả lời (chu kỳ 2-3 ngày). Đạt mục tiêu đề xuất BH.</p>
+            <span class="inline-block px-2 py-0.5 rounded bg-white text-amber-800 font-semibold border border-amber-200">Tối đa 5 lần Claim</span>
+          </div>
+
+          <!-- Step 4 -->
+          <div class="p-4 rounded-xl bg-purple-50/60 border border-purple-200/80">
+            <div class="flex items-center justify-between font-bold text-purple-900 mb-2">
+              <span>BƯỚC 4: KẾT THÚC VÒNG ĐỜI</span>
+              <i class="fa-solid fa-flag-checkered text-purple-600"></i>
+            </div>
+            <p class="text-slate-600 leading-relaxed mb-2">Hoàn 100% &rarr; Kho Hoàn Shopee. Bồi hoàn &lt;100% &rarr; Kho Thanh Lý. Quá 5 lần &rarr; Chuyển người phụ trách xử lý thủ công.</p>
+            <span class="inline-block px-2 py-0.5 rounded bg-white text-purple-800 font-semibold border border-purple-200">Đóng Ticket</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTIVE TICKETS TABLE -->
+      <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div class="px-6 py-4 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h3 class="text-sm font-bold text-slate-900">Danh Sách Ticket Hàng Hoàn Đang Xử Lý</h3>
+            <p class="text-xs text-slate-500">Tra cứu nhanh theo mã đơn, mã vận đơn hoặc tình trạng</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <input type="text" id="ticketSearch" onkeyup="filterTicketTable()" placeholder="Tìm kiếm vận đơn, SKU, đơn hàng..." 
+                   class="px-3 py-1.5 rounded-lg border border-slate-200 text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none w-64">
+            <button onclick="refreshData()" class="p-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs">
+              <i class="fa-solid fa-arrows-rotate"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs text-slate-600">
+            <thead class="bg-slate-50 text-slate-700 uppercase font-semibold border-b border-slate-200">
+              <tr>
+                <th class="px-6 py-3">Mã Ticket / Đơn Hàng</th>
+                <th class="px-4 py-3">Mã Vận Đơn</th>
+                <th class="px-4 py-3">Sản Phẩm (SKU)</th>
+                <th class="px-4 py-3">Kho Hiện Tại</th>
+                <th class="px-4 py-3">Trạng Thái Giám Định</th>
+                <th class="px-4 py-3">Vòng Claim</th>
+                <th class="px-6 py-3 text-right">Thao Tác</th>
+              </tr>
+            </thead>
+            <tbody id="ticketTableBody" class="divide-y divide-slate-100">
+              <!-- Rendered via JS -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 2: TIẾP NHẬN KHO SÀN TRẢ -->
+    <section id="view-intake" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Form Tiếp Nhận Mới -->
+        <div class="lg:col-span-1 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+            <i class="fa-solid fa-barcode text-orange-600"></i>
+            Đăng Ký Kiện Hàng Trả Về Mới
+          </h3>
+          <p class="text-xs text-slate-500">Thủ kho quét vận đơn khi nhận kiện từ đơn vị vận chuyển (SPX, J&T, Viettel Post...)</p>
+
+          <form id="formNewTicket" onsubmit="handleCreateTicket(event)" class="space-y-3 text-xs">
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Mã Đơn Hàng Shopee <span class="text-red-500">*</span></label>
+              <input type="text" id="inpOrderId" required placeholder="Ví dụ: 241020SPX8921A" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Mã Vận Đơn Trả <span class="text-red-500">*</span></label>
+              <input type="text" id="inpTrackingNo" required placeholder="Ví dụ: SPXVN0493821890" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block font-medium text-slate-700 mb-1">Đơn Vị Vận Chuyển</label>
+                <select id="inpCarrier" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                  <option value="SPX Express">SPX Express</option>
+                  <option value="J&T Express">J&T Express</option>
+                  <option value="Ninja Van">Ninja Van</option>
+                  <option value="Viettel Post">Viettel Post</option>
+                  <option value="GHTK">GHTK</option>
+                </select>
+              </div>
+              <div>
+                <label class="block font-medium text-slate-700 mb-1">Thời Gian Nhập Kiện</label>
+                <input type="date" id="inpReceivedDate" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+              </div>
+            </div>
+
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Tên Sản Phẩm / Model SKU</label>
+              <input type="text" id="inpSku" required placeholder="Ví dụ: Smart Tivi LG 55UQ7550 / Máy giặt Casper 8.5kg" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+            </div>
+
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Link Video / Ảnh Bóc Kiện (Google Drive)</label>
+              <input type="url" id="inpDriveUrl" placeholder="https://drive.google.com/..." class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+              <span class="text-[10px] text-slate-400 mt-1 block">Tự động gắn vào thư mục <a href="https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing" target="_blank" class="text-orange-600 underline">ShopeeReturnMedia</a></span>
+            </div>
+
+            <div>
+              <label class="block font-medium text-slate-700 mb-1">Ghi Chú Ban Đầu Ngoại Quan</label>
+              <textarea id="inpNotes" rows="2" placeholder="Tình trạng vỏ hộp bên ngoài (móp méo, rách băng keo, nguyên seal...)" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none"></textarea>
+            </div>
+
+            <button type="submit" class="w-full py-2.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white font-semibold shadow transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-floppy-disk"></i>
+              Lập Biên Bản & Nhập Kho Sàn Trả
+            </button>
+          </form>
+        </div>
+
+        <!-- Danh sách kiện chờ chuyển giám định -->
+        <div class="lg:col-span-2 bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-boxes-stacked text-orange-600"></i>
+              Danh Sách Kiện Tại Kho Sàn Trả (Chờ Kỹ Thuật Giám Định)
+            </h3>
+            <span class="text-xs text-slate-500" id="intake-count">0 kiện</span>
+          </div>
+
+          <div id="intakeList" class="space-y-3">
+            <!-- Rendered via JS -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 3: GIÁM ĐỊNH KỸ THUẬT -->
+    <section id="view-inspection" class="hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-microscope text-blue-600"></i>
+              Phân Loại & Giám Định Kỹ Thuật / Bảo Hành
+            </h3>
+            <p class="text-xs text-slate-500">Đánh giá thực tế + phân loại trên hệ thống để điều chuyển về đúng kho</p>
+          </div>
+          <div class="text-xs bg-blue-50 text-blue-700 px-3 py-1.5 rounded-lg font-medium border border-blue-200">
+            Quy tắc: Hàng bình thường &rarr; <b>Kho Bán</b> | Có vấn đề &rarr; <b>Kho Chờ Xử Lý Sàn</b>
+          </div>
+        </div>
+
+        <div id="inspectionList" class="space-y-4">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 4: CS-ECOM CLAIM SHOPEE & AI -->
+    <section id="view-claims" class="hidden space-y-6">
+      <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+        <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-slate-100 pb-4">
+          <div>
+            <h3 class="text-base font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-brain text-amber-600"></i>
+              Bàn Làm Việc CS-Ecom: Khiếu Nại Shopee & Trợ Lý AI
+            </h3>
+            <p class="text-xs text-slate-500">Chu kỳ phản hồi Shopee 2-3 ngày, phản hồi trong vòng 24h. Sau 5 lần claim tự động chuyển người phụ trách.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs bg-amber-50 text-amber-800 border border-amber-200 px-3 py-1.5 rounded-lg font-medium">
+              <i class="fa-solid fa-clock text-amber-600 mr-1"></i> SLA phản hồi: <b>24 Giờ</b>
+            </span>
+          </div>
+        </div>
+
+        <div id="claimsList" class="space-y-4">
+          <!-- Rendered via JS -->
+        </div>
+      </div>
+    </section>
+
+    <!-- TAB 5: QUẢN LÝ TỒN 5 KHO -->
+    <section id="view-warehouses" class="hidden space-y-6">
+      <div class="grid grid-cols-1 md:grid-cols-5 gap-4" id="warehousesGrid">
+        <!-- Rendered via JS -->
+      </div>
+    </section>
+
+    <!-- TAB 6: BÁO CÁO & LARK INTEGRATION -->
+    <section id="view-analytics" class="hidden space-y-6">
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Chart 1: Phân bổ hàng theo kho -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="text-sm font-bold text-slate-900">Phân Bổ Tồn Hàng Tại 5 Kho</h3>
+          <div class="h-64 flex items-center justify-center">
+            <canvas id="chartWarehouse"></canvas>
+          </div>
+        </div>
+
+        <!-- Chart 2: Tỷ lệ claim bồi hoàn -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <h3 class="text-sm font-bold text-slate-900">Tỷ Lệ Bồi Hoàn Từ Shopee</h3>
+          <div class="h-64 flex items-center justify-center">
+            <canvas id="chartClaimSuccess"></canvas>
+          </div>
+        </div>
+
+        <!-- Lark Suite Control Panel -->
+        <div class="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div class="flex items-center justify-between">
+            <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+              <i class="fa-solid fa-paper-plane text-blue-600"></i>
+              Tích Hợp Lark Suite Bot
+            </h3>
+            <span class="text-xs bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded font-medium">Đã kết nối</span>
+          </div>
+          <p class="text-xs text-slate-500 leading-relaxed">
+            Hệ thống đã lưu Secret <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">HOAN_LARK_APP_ID</code> và <code class="bg-slate-100 px-1 py-0.5 rounded font-mono">HOAN_LARK_BOT_CHAT_ID</code>.
+          </p>
+
+          <div class="p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-xs space-y-2">
+            <div class="font-semibold text-slate-800">Thao tác nhanh sang nhóm Lark:</div>
+            <button onclick="triggerLarkTestMessage()" class="w-full py-2 rounded-lg bg-blue-600 text-white font-medium hover:bg-blue-700 transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-bell"></i>
+              Gửi Báo Cáo Tồn Kho Sang Nhóm Lark
+            </button>
+            <button onclick="triggerLarkEscalationAlert()" class="w-full py-2 rounded-lg bg-amber-600 text-white font-medium hover:bg-amber-700 transition flex items-center justify-center gap-2">
+              <i class="fa-solid fa-triangle-exclamation"></i>
+              Cảnh Báo Đơn Quá 5 Vòng Claim
+            </button>
+          </div>
+
+          <div class="text-[11px] text-slate-500">
+            <i class="fa-solid fa-shield-halved text-slate-400 mr-1"></i>
+            Thẻ tương tác Lark Interactive Card cho phép Trưởng bộ phận bấm <b>Phê duyệt</b> hoặc <b>Từ chối</b> trực tiếp trong tin nhắn chat.
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- MODAL: INSPECTION POPUP -->
+  <div id="modalInspection" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-clipboard-check text-blue-600"></i>
+          Biên Bản Giám Định Kỹ Thuật
+        </h3>
+        <button onclick="closeInspectionModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <input type="hidden" id="modalTicketId">
+        <div>
+          <div class="font-medium text-slate-700">Đơn hàng: <span id="modalOrderId" class="font-bold text-slate-900"></span></div>
+          <div class="text-slate-500">SKU: <span id="modalSku" class="text-slate-800 font-semibold"></span></div>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Kết quả kiểm tra ngoại quan & phụ kiện</label>
+          <select id="modalCondition" class="w-full px-3 py-2 rounded-lg border border-slate-200">
+            <option value="normal">Bình thường (Nguyên seal, đầy đủ phụ kiện, hoạt động tốt)</option>
+            <option value="minor_damage">Hư hỏng nhẹ (Móp méo vỏ hộp, trầy xước nhẹ ngoại quan)</option>
+            <option value="major_damage">Hư hỏng nặng (Vỡ màn hình, nứt vỏ, móp méo biến dạng do vận chuyển)</option>
+            <option value="missing_parts">Thiếu linh kiện / Sai sản phẩm bên trong</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Quyết định điều chuyển kho</label>
+          <select id="modalTargetWarehouse" class="w-full px-3 py-2 rounded-lg border border-slate-200 font-semibold">
+            <option value="ban_binh_thuong" class="text-emerald-700">➡️ Chuyển KHO BÁN BÌNH THƯỜNG (Hàng nguyên vẹn - Đóng Ticket)</option>
+            <option value="cho_xu_ly" class="text-amber-700" selected>➡️ Chuyển KHO CHỜ XỬ LÝ SÀN (Có lỗi - Khởi tạo Claim Shopee)</option>
+          </select>
+        </div>
+
+        <div id="claimRequirementBox">
+          <label class="block font-medium text-slate-700 mb-1">Mức bồi hoàn yêu cầu phía Shopee</label>
+          <select id="modalClaimTarget" class="w-full px-3 py-2 rounded-lg border border-slate-200">
+            <option value="100">Bồi hoàn 100% giá trị sản phẩm</option>
+            <option value="70">Bồi hoàn 70% giá trị sản phẩm</option>
+            <option value="50">Bồi hoàn 50% chi phí khắc phục</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Ghi chú giám định chi tiết của Kỹ Thuật</label>
+          <textarea id="modalInspectNotes" rows="3" placeholder="Chi tiết lỗi màn hình, bo mạch hoặc đóng gói của khách..." class="w-full px-3 py-2 rounded-lg border border-slate-200"></textarea>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 text-xs">
+        <button onclick="closeInspectionModal()" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">Hủy</button>
+        <button onclick="saveInspectionResult()" class="px-4 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700">Xác Nhận & Điều Chuyển Kho</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: AI CLAIM GENERATOR -->
+  <div id="modalAiClaim" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-xl">
+      <div class="flex items-center justify-between border-b border-slate-100 pb-3">
+        <h3 class="text-sm font-bold text-slate-900 flex items-center gap-2">
+          <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i>
+          Trợ Lý AI: Tạo Khiếu Nại Shopee Tự Động
+        </h3>
+        <button onclick="closeAiClaimModal()" class="text-slate-400 hover:text-slate-600"><i class="fa-solid fa-xmark"></i></button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <input type="hidden" id="aiClaimTicketId">
+        <div class="bg-amber-50 p-3 rounded-lg border border-amber-200 text-amber-900">
+          <span class="font-bold">Đơn hàng:</span> <span id="aiOrderId"></span> | 
+          <span class="font-bold">Vòng claim:</span> Lần <span id="aiAttemptNo">1</span>/5
+        </div>
+
+        <div>
+          <label class="block font-medium text-slate-700 mb-1">Nội dung khiếu nại do AI soạn thảo (Chuẩn chính sách Shopee)</label>
+          <textarea id="aiDraftText" rows="6" class="w-full p-3 rounded-lg border border-slate-200 font-mono text-[11px] leading-relaxed"></textarea>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Gửi phản hồi cho Shopee</label>
+            <input type="date" id="aiClaimDate" class="w-full px-3 py-1.5 rounded-lg border border-slate-200">
+          </div>
+          <div>
+            <label class="block font-medium text-slate-700 mb-1">Hạn CS phản hồi lại sàn</label>
+            <input type="text" value="Trong vòng 24 giờ" readonly class="w-full px-3 py-1.5 rounded-lg border border-slate-200 bg-slate-50 text-slate-500">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100 text-xs">
+        <button onclick="closeAiClaimModal()" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600">Đóng</button>
+        <button onclick="submitClaimAttempt()" class="px-4 py-2 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700">
+          <i class="fa-solid fa-paper-plane mr-1"></i> Ghi Nhận Gửi Claim Shopee
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION CONTAINER -->
+  <div id="toast" class="fixed bottom-5 right-5 z-50 transform transition-all duration-300 translate-y-20 opacity-0 pointer-events-none">
+    <div class="bg-slate-900 text-white text-xs px-4 py-3 rounded-xl shadow-lg flex items-center gap-2">
+      <i id="toastIcon" class="fa-solid fa-check text-emerald-400"></i>
+      <span id="toastMsg">Thao tác thành công</span>
+    </div>
+  </div>
+
+  <!-- CORE JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    // Supabase Configuration
+    const SUPABASE_URL = "https://ljmfzqtqphoxdoxhsayo.supabase.co";
+    const SUPABASE_ANON = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxqbWZ6cXRxcGhveGRveGhzYXlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTIwNTE1ODYsImV4cCI6MjEwNzYyNzU4Nn0.CLNoIBtjqzJYqWGtjLrc6SCQWq86_wi-Qe5mupn0X_8";
+
+    // 5 Standard Warehouses
+    const WAREHOUSES = [
+      { id: "sàn_trả", name: "Kho Sàn Trả", step: 1, color: "orange", desc: "Tiếp nhận hàng hoàn ban đầu" },
+      { id: "bán_bình_thường", name: "Kho Bán Bình Thường", step: 2, color: "emerald", desc: "Hàng nguyên vẹn, nhập kho bán lại" },
+      { id: "chờ_xử_lý", name: "Kho Chờ Xử Lý Sàn", step: 3, color: "amber", desc: "Hư hỏng, đang khiếu nại đòi bồi hoàn" },
+      { id: "hoàn_shopee", name: "Kho Hoàn Shopee", step: 4, color: "blue", desc: "Shopee bồi hoàn 100% giá trị" },
+      { id: "thanh_lý", name: "Kho Hàng Thanh Lý", step: 5, color: "purple", desc: "Bồi hoàn <100% hoặc xuất bán thanh lý" }
+    ];
+
+    // Initial Mock / Seed State
+    let tickets = [
+      {
+        id: "TCK-1001",
+        order_id: "241018SPX9912A",
+        tracking_no: "SPXVN0392019283",
+        carrier: "SPX Express",
+        sku: "Smart Tivi LG 4K 55 inch 55UQ7550PSF",
+        received_date: "2026-10-18",
+        warehouse_id: "chờ_xử_lý",
+        condition: "major_damage",
+        condition_text: "Vỡ màn hình bên trong khi cắm điện test, vỏ thùng rách góc",
+        claim_target: "100",
+        claim_attempts: 2,
+        claim_status: "pending_shopee",
+        shopee_response: "Shopee đề xuất hoàn 50% chi phí sửa chữa",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        escalated: false,
+        created_at: "2026-10-18 10:15"
+      },
+      {
+        id: "TCK-1002",
+        order_id: "241019JNT1203B",
+        tracking_no: "JNT8829102931VN",
+        carrier: "J&T Express",
+        sku: "Máy Giặt Casper Inverter 8.5 kg WT-85NG68MGL",
+        received_date: "2026-10-19",
+        warehouse_id: "sàn_trả",
+        condition: "pending_inspection",
+        condition_text: "Chờ bộ phận Kỹ thuật / Bảo hành mở thùng giám định",
+        claim_target: "100",
+        claim_attempts: 0,
+        claim_status: "none",
+        shopee_response: "",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        escalated: false,
+        created_at: "2026-10-19 14:30"
+      },
+      {
+        id: "TCK-1003",
+        order_id: "241017NV88320C",
+        tracking_no: "NVN9028301920VN",
+        carrier: "Ninja Van",
+        sku: "Máy Lạnh Daikin Inverter 1 HP ATKF25XVMV",
+        received_date: "2026-10-17",
+        warehouse_id: "bán_bình_thường",
+        condition: "normal",
+        condition_text: "Nguyên vẹn, khách đổi ý không nhận, test board mạch hoạt động tốt",
+        claim_target: "0",
+        claim_attempts: 0,
+        claim_status: "completed",
+        shopee_response: "",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        escalated: false,
+        created_at: "2026-10-17 09:00"
+      },
+      {
+        id: "TCK-1004",
+        order_id: "241015SPX0019D",
+        tracking_no: "SPXVN0102938475",
+        carrier: "SPX Express",
+        sku: "Tủ Lạnh Samsung Inverter 236 Lít RT22M4032BY/SV",
+        received_date: "2026-10-15",
+        warehouse_id: "thanh_lý",
+        condition: "minor_damage",
+        condition_text: "Móp cạnh hông bên trái, Shopee bồi hoàn 40% chi phí",
+        claim_target: "100",
+        claim_attempts: 5,
+        claim_status: "partial_paid",
+        shopee_response: "Shopee chốt hỗ trợ tối đa 40% (800.000đ), đã chuyển thanh lý xuất bán",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        escalated: true,
+        created_at: "2026-10-15 11:20"
+      },
+      {
+        id: "TCK-1005",
+        order_id: "241019VTP7721E",
+        tracking_no: "VTP6628190281VN",
+        carrier: "Viettel Post",
+        sku: "Máy Sấy Quần Áo Thông Hơi Electrolux 8.5 Kg EDV854J3WB",
+        received_date: "2026-10-19",
+        warehouse_id: "hoàn_shopee",
+        condition: "major_damage",
+        condition_text: "Vỡ nắp kính cửa trước do va đập vận chuyển",
+        claim_target: "100",
+        claim_attempts: 2,
+        claim_status: "full_refund",
+        shopee_response: "Shopee đồng ý bồi hoàn 100% giá trị đơn hàng (9.200.000đ)",
+        drive_url: "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        escalated: false,
+        created_at: "2026-10-19 16:40"
+      }
+    ];
+
+    // Load Local Storage if available
+    if (localStorage.getItem("shopee_return_tickets")) {
+      try {
+        const saved = JSON.parse(localStorage.getItem("shopee_return_tickets"));
+        if (saved && saved.length > 0) tickets = saved;
+      } catch (e) {}
+    }
+
+    function saveState() {
+      localStorage.setItem("shopee_return_tickets", JSON.stringify(tickets));
+      renderAll();
+    }
+
+    // Switch Tabs
+    function switchTab(tabId) {
+      document.querySelectorAll("main > section").forEach(sec => sec.classList.add("hidden"));
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        btn.classList.remove("bg-white", "text-orange-600", "font-semibold", "shadow-sm", "border");
+        btn.classList.add("text-slate-600");
+      });
+
+      const target = document.getElementById("view-" + tabId);
+      if (target) target.classList.remove("hidden");
+
+      const btn = document.getElementById("tab-" + tabId);
+      if (btn) {
+        btn.classList.add("bg-white", "text-orange-600", "font-semibold", "shadow-sm", "border");
+        btn.classList.remove("text-slate-600");
+      }
+
+      if (tabId === 'analytics') {
+        renderCharts();
+      }
+    }
+
+    // Render Stats
+    function renderStats() {
+      const counts = {
+        "sàn_trả": 0,
+        "bán_bình_thường": 0,
+        "chờ_xử_lý": 0,
+        "hoàn_shopee": 0,
+        "thanh_lý": 0
+      };
+
+      tickets.forEach(t => {
+        if (counts[t.warehouse_id] !== undefined) counts[t.warehouse_id]++;
+      });
+
+      document.getElementById("stat-kho-san-tra").innerText = counts["sàn_trả"];
+      document.getElementById("stat-kho-ban").innerText = counts["bán_bình_thường"];
+      document.getElementById("stat-kho-cho").innerText = counts["chờ_xử_lý"];
+      document.getElementById("stat-kho-hoan").innerText = counts["hoàn_shopee"];
+      document.getElementById("stat-kho-thanh-ly").innerText = counts["thanh_lý"];
+
+      document.getElementById("badge-intake").innerText = counts["sàn_trả"];
+      document.getElementById("badge-inspect").innerText = counts["sàn_trả"];
+      document.getElementById("badge-claims").innerText = counts["chờ_xử_lý"];
+    }
+
+    // Render Ticket Table in Tab 1
+    function renderTicketTable() {
+      const tbody = document.getElementById("ticketTableBody");
+      tbody.innerHTML = "";
+
+      if (tickets.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="7" class="text-center py-8 text-slate-400">Chưa có ticket nào.</td></tr>`;
+        return;
+      }
+
+      tickets.forEach(t => {
+        const wh = WAREHOUSES.find(w => w.id === t.warehouse_id) || { name: t.warehouse_id, color: "slate" };
+
+        let conditionBadge = "";
+        if (t.condition === 'normal') {
+          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 text-[11px] font-medium">Bình Thường</span>`;
+        } else if (t.condition === 'minor_damage') {
+          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[11px] font-medium">Hư Hỏng Nhẹ</span>`;
+        } else if (t.condition === 'major_damage') {
+          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-800 text-[11px] font-medium">Hư Hỏng Nặng</span>`;
+        } else {
+          conditionBadge = `<span class="px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 text-[11px] font-medium">Chờ Giám Định</span>`;
+        }
+
+        let claimBadge = "";
+        if (t.claim_attempts >= 5) {
+          claimBadge = `<span class="px-2 py-0.5 rounded-full bg-red-100 text-red-800 font-bold text-[10px] animate-pulse">Escalation (Lần 5)</span>`;
+        } else if (t.claim_attempts > 0) {
+          claimBadge = `<span class="px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-semibold text-[10px]">Vòng ${t.claim_attempts}/5</span>`;
+        } else {
+          claimBadge = `<span class="text-slate-400 text-[11px]">-</span>`;
+        }
+
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50/80 transition";
+        tr.innerHTML = `
+          <td class="px-6 py-3 font-semibold text-slate-900">
+            <div>${t.order_id}</div>
+            <div class="text-[10px] text-slate-400 font-normal">${t.id} · ${t.carrier}</div>
+          </td>
+          <td class="px-4 py-3 font-mono font-medium text-slate-700">
+            ${t.tracking_no}
+          </td>
+          <td class="px-4 py-3 max-w-xs truncate" title="${t.sku}">
+            <div class="font-medium text-slate-800 truncate">${t.sku}</div>
+            <div class="text-[10px] text-slate-400 truncate">${t.condition_text || ''}</div>
+          </td>
+          <td class="px-4 py-3">
+            <span class="px-2 py-0.5 rounded font-medium text-[11px] bg-${wh.color}-50 text-${wh.color}-700 border border-${wh.color}-200">
+              ${wh.name}
+            </span>
+          </td>
+          <td class="px-4 py-3">
+            ${conditionBadge}
+          </td>
+          <td class="px-4 py-3">
+            ${claimBadge}
+          </td>
+          <td class="px-6 py-3 text-right space-x-1">
+            ${t.warehouse_id === 'sàn_trả' ? `
+              <button onclick="openInspectionModal('${t.id}')" class="px-2 py-1 rounded bg-blue-50 text-blue-700 hover:bg-blue-100 font-semibold text-[11px]">
+                Giám Định
+              </button>
+            ` : ''}
+            ${t.warehouse_id === 'chờ_xử_lý' ? `
+              <button onclick="openAiClaimModal('${t.id}')" class="px-2 py-1 rounded bg-amber-50 text-amber-700 hover:bg-amber-100 font-semibold text-[11px]">
+                Claim AI (${t.claim_attempts})
+              </button>
+            ` : ''}
+            <a href="${t.drive_url || '#'}" target="_blank" class="p-1 text-slate-400 hover:text-amber-600 inline-block" title="Xem video Drive">
+              <i class="fa-brands fa-google-drive"></i>
+            </a>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    // Render Tab 2: Intake List
+    function renderIntakeList() {
+      const container = document.getElementById("intakeList");
+      container.innerHTML = "";
+      const intakeItems = tickets.filter(t => t.warehouse_id === 'sàn_trả');
+      document.getElementById("intake-count").innerText = `${intakeItems.length} kiện chờ`;
+
+      if (intakeItems.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 border border-dashed rounded-xl">Không có kiện nào đang tồn tại Kho Sàn Trả.</div>`;
+        return;
+      }
+
+      intakeItems.forEach(t => {
+        const item = document.createElement("div");
+        item.className = "p-4 rounded-xl border border-slate-200 hover:border-orange-300 transition bg-slate-50/50 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-xs";
+        item.innerHTML = `
+          <div class="space-y-1">
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-slate-900">${t.order_id}</span>
+              <span class="px-2 py-0.5 rounded bg-orange-100 text-orange-800 font-semibold text-[10px]">${t.carrier}</span>
+              <span class="text-slate-400">Vận đơn: <code class="font-mono text-slate-700">${t.tracking_no}</code></span>
+            </div>
+            <div class="font-medium text-slate-800">${t.sku}</div>
+            <div class="text-slate-500 text-[11px]">Ghi chú bóc kiện: ${t.condition_text}</div>
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+            <a href="${t.drive_url}" target="_blank" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-white flex items-center gap-1">
+              <i class="fa-brands fa-google-drive text-amber-500"></i> Video Bóc Seal
+            </a>
+            <button onclick="openInspectionModal('${t.id}')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition">
+              Chuyển Giám Định BH
+            </button>
+          </div>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    // Render Tab 3: Inspection List
+    function renderInspectionList() {
+      const container = document.getElementById("inspectionList");
+      container.innerHTML = "";
+      const pendingItems = tickets.filter(t => t.warehouse_id === 'sàn_trả');
+
+      if (pendingItems.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 border border-dashed rounded-xl">Tất cả kiện hàng tại Kho Sàn Trả đã được giám định và điều chuyển kho!</div>`;
+        return;
+      }
+
+      pendingItems.forEach(t => {
+        const card = document.createElement("div");
+        card.className = "p-5 rounded-2xl border border-slate-200 bg-white shadow-sm space-y-3 text-xs";
+        card.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
+            <div>
+              <span class="font-bold text-slate-900 text-sm">${t.sku}</span>
+              <span class="text-slate-400 ml-2">Đơn: ${t.order_id} · Vận đơn: ${t.tracking_no}</span>
+            </div>
+            <span class="px-2.5 py-1 rounded bg-blue-100 text-blue-800 font-semibold text-[11px]">Chờ Kỹ Thuật Test</span>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-slate-600 bg-slate-50 p-3 rounded-xl">
+            <div><span class="font-semibold text-slate-800">Đơn vị vận chuyển:</span> ${t.carrier}</div>
+            <div><span class="font-semibold text-slate-800">Ngày nhập:</span> ${t.received_date}</div>
+            <div>
+              <a href="${t.drive_url}" target="_blank" class="text-blue-600 underline hover:text-blue-800">
+                <i class="fa-brands fa-google-drive text-amber-500 mr-1"></i> Xem Video Mở Kiện
+              </a>
+            </div>
+          </div>
+
+          <div class="flex justify-end gap-2 pt-1">
+            <button onclick="quickApproveNormal('${t.id}')" class="px-3.5 py-2 rounded-lg bg-emerald-600 text-white font-semibold hover:bg-emerald-700 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-check"></i> Xác Nhận Bình Thường &rarr; Nhập Kho Bán
+            </button>
+            <button onclick="openInspectionModal('${t.id}')" class="px-3.5 py-2 rounded-lg bg-amber-600 text-white font-semibold hover:bg-amber-700 transition flex items-center gap-1.5">
+              <i class="fa-solid fa-triangle-exclamation"></i> Báo Hư Hỏng &rarr; Chuyển Kho Chờ Sàn
+            </button>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Render Tab 4: Claims List
+    function renderClaimsList() {
+      const container = document.getElementById("claimsList");
+      container.innerHTML = "";
+      const claimItems = tickets.filter(t => t.warehouse_id === 'chờ_xử_lý');
+
+      if (claimItems.length === 0) {
+        container.innerHTML = `<div class="p-8 text-center text-slate-400 border border-dashed rounded-xl">Hiện không có đơn nào ở Kho Chờ Xử Lý Sàn.</div>`;
+        return;
+      }
+
+      claimItems.forEach(t => {
+        const isEscalated = t.claim_attempts >= 5;
+        const card = document.createElement("div");
+        card.className = `p-5 rounded-2xl border ${isEscalated ? 'border-red-300 bg-red-50/30' : 'border-slate-200 bg-white'} shadow-sm space-y-3 text-xs`;
+        
+        card.innerHTML = `
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-100 pb-2">
+            <div>
+              <span class="font-bold text-slate-900 text-sm">${t.sku}</span>
+              <span class="text-slate-400 ml-2">Đơn: ${t.order_id}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="px-2.5 py-1 rounded ${isEscalated ? 'bg-red-600 text-white font-bold animate-pulse' : 'bg-amber-100 text-amber-800 font-semibold'} text-[11px]">
+                ${isEscalated ? '⚠️ ĐÃ QUA 5 VÒNG - CẦN NGƯỜI PHỤ TRÁCH' : `Vòng Khiếu Nại: ${t.claim_attempts}/5`}
+              </span>
+            </div>
+          </div>
+
+          <div class="space-y-1 text-slate-600">
+            <div><span class="font-semibold text-slate-800">Biên bản lỗi Kỹ Thuật:</span> ${t.condition_text}</div>
+            <div><span class="font-semibold text-slate-800">Mục tiêu đòi bồi hoàn:</span> <b>${t.claim_target}%</b> giá trị đơn</div>
+            ${t.shopee_response ? `
+              <div class="p-2.5 bg-amber-50 rounded-lg border border-amber-200 text-amber-900">
+                <span class="font-semibold">Phản hồi gần nhất của Shopee:</span> ${t.shopee_response}
+              </div>
+            ` : '<div class="text-slate-400 italic">Chưa có phản hồi từ Shopee. Cần CS gửi khiếu nại.</div>'}
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-slate-100">
+            <div class="flex items-center gap-2">
+              <button onclick="openAiClaimModal('${t.id}')" class="px-3 py-1.5 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700 transition flex items-center gap-1.5">
+                <i class="fa-solid fa-wand-magic-sparkles"></i> AI Viết Khiếu Nại Shopee (Vòng ${t.claim_attempts + 1})
+              </button>
+              <a href="${t.drive_url}" target="_blank" class="px-2.5 py-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50">
+                <i class="fa-brands fa-google-drive text-amber-500"></i> Video Bằng Chứng
+              </a>
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              <button onclick="resolveClaimSuccess('${t.id}')" class="px-3 py-1.5 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition flex items-center gap-1">
+                <i class="fa-solid fa-check"></i> Shopee Bồi Hoàn 100% &rarr; Kho Hoàn
+              </button>
+              <button onclick="resolveClaimPartial('${t.id}')" class="px-3 py-1.5 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition flex items-center gap-1">
+                <i class="fa-solid fa-tags"></i> Bồi Hoàn &lt;100% &rarr; Kho Thanh Lý
+              </button>
+            </div>
+          </div>
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    // Render Tab 5: 5 Warehouses Grid
+    function renderWarehousesGrid() {
+      const container = document.getElementById("warehousesGrid");
+      container.innerHTML = "";
+
+      WAREHOUSES.forEach(wh => {
+        const colItems = tickets.filter(t => t.warehouse_id === wh.id);
+        const col = document.createElement("div");
+        col.className = "bg-white rounded-2xl border border-slate-200 p-4 shadow-sm space-y-3 flex flex-col";
+        col.innerHTML = `
+          <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+            <div>
+              <h4 class="font-bold text-slate-800 text-xs">${wh.name}</h4>
+              <p class="text-[10px] text-slate-400">${wh.desc}</p>
+            </div>
+            <span class="w-6 h-6 rounded-full bg-${wh.color}-100 text-${wh.color}-700 flex items-center justify-center font-bold text-xs">
+              ${colItems.length}
+            </span>
+          </div>
+
+          <div class="space-y-2 flex-1 overflow-y-auto max-h-[500px]">
+            ${colItems.map(item => `
+              <div class="p-2.5 rounded-xl border border-slate-200/80 bg-slate-50/50 hover:bg-white transition text-[11px] space-y-1">
+                <div class="font-bold text-slate-900">${item.order_id}</div>
+                <div class="text-slate-700 line-clamp-1">${item.sku}</div>
+                <div class="text-[10px] text-slate-400">Vận đơn: ${item.tracking_no}</div>
+              </div>
+            `).join('') || `<div class="text-center py-6 text-slate-400 text-[11px]">Trống</div>`}
+          </div>
+        `;
+        container.appendChild(col);
+      });
+    }
+
+    // Modal: Inspection
+    function openInspectionModal(ticketId) {
+      const t = tickets.find(x => x.id === ticketId);
+      if (!t) return;
+      document.getElementById("modalTicketId").value = t.id;
+      document.getElementById("modalOrderId").innerText = t.order_id;
+      document.getElementById("modalSku").innerText = t.sku;
+      document.getElementById("modalInspection").classList.remove("hidden");
+    }
+    function closeInspectionModal() {
+      document.getElementById("modalInspection").classList.add("hidden");
+    }
+
+    function saveInspectionResult() {
+      const ticketId = document.getElementById("modalTicketId").value;
+      const condition = document.getElementById("modalCondition").value;
+      const targetWh = document.getElementById("modalTargetWarehouse").value;
+      const claimTarget = document.getElementById("modalClaimTarget").value;
+      const notes = document.getElementById("modalInspectNotes").value;
+
+      const t = tickets.find(x => x.id === ticketId);
+      if (t) {
+        t.condition = condition;
+        t.condition_text = notes || (condition === 'normal' ? 'Bình thường, đủ phụ kiện' : 'Hư hỏng do vận chuyển');
+        t.claim_target = claimTarget;
+
+        if (targetWh === 'ban_binh_thuong') {
+          t.warehouse_id = 'bán_bình_thường';
+          t.claim_status = 'completed';
+          showToast(`✅ Đã giám định: Hàng bình thường, nhập vào KHO BÁN BÌNH THƯỜNG.`);
+        } else {
+          t.warehouse_id = 'chờ_xử_lý';
+          t.claim_status = 'pending_shopee';
+          showToast(`⚠️ Đã giám định: Có lỗi, chuyển KHO CHỜ XỬ LÝ SÀN và mở Claim.`);
+        }
+        saveState();
+        closeInspectionModal();
+      }
+    }
+
+    function quickApproveNormal(ticketId) {
+      const t = tickets.find(x => x.id === ticketId);
+      if (t) {
+        t.condition = 'normal';
+        t.condition_text = 'Kiểm tra ngoại quan & test hoạt động bình thường, nhập kho bán';
+        t.warehouse_id = 'bán_bình_thường';
+        t.claim_status = 'completed';
+        saveState();
+        showToast(`✅ Đã duyệt nhập Kho Bán Bình Thường cho đơn ${t.order_id}!`);
+      }
+    }
+
+    // Modal: AI Claim
+    function openAiClaimModal(ticketId) {
+      const t = tickets.find(x => x.id === ticketId);
+      if (!t) return;
+      document.getElementById("aiClaimTicketId").value = t.id;
+      document.getElementById("aiOrderId").innerText = t.order_id;
+      document.getElementById("aiAttemptNo").innerText = t.claim_attempts + 1;
+      document.getElementById("aiClaimDate").value = new Date().toISOString().split('T')[0];
+
+      // Auto Generate AI prompt based on policy
+      const draft = `Kính gửi Bộ Phận Hỗ Trợ Người Bán Shopee (Claim Hàng Đổi Trả),\n\nShop xin gửi biên bản khiếu nại hàng hoàn cho đơn hàng ${t.order_id} (Mã vận đơn: ${t.tracking_no}).\n\n1. Sản phẩm: ${t.sku}\n2. Tình trạng thực tế khi mở kiện: ${t.condition_text}\n3. Bằng chứng video bóc seal & kiểm định: ${t.drive_url}\n4. Căn cứ chính sách TMĐT Shopee về hàng hoàn vỡ hỏng do ĐVVC, Shop yêu cầu bồi hoàn ${t.claim_target}% giá trị đơn hàng.\n\nRất mong Shopee phản hồi hỗ trợ trong vòng 2-3 ngày làm việc theo quy định.\nXin cảm ơn!`;
+
+      document.getElementById("aiDraftText").value = draft;
+      document.getElementById("modalAiClaim").classList.remove("hidden");
+    }
+    function closeAiClaimModal() {
+      document.getElementById("modalAiClaim").classList.add("hidden");
+    }
+
+    function submitClaimAttempt() {
+      const ticketId = document.getElementById("aiClaimTicketId").value;
+      const t = tickets.find(x => x.id === ticketId);
+      if (t) {
+        t.claim_attempts = (t.claim_attempts || 0) + 1;
+        t.shopee_response = `Đã gửi văn bản khiếu nại vòng ${t.claim_attempts} tới Shopee. Chờ sàn phản hồi trong 2-3 ngày.`;
+        if (t.claim_attempts >= 5) {
+          t.escalated = true;
+          showToast(`🚨 Đơn ${t.order_id} đã qua 5 vòng claim! Kích hoạt chế độ Escalation cho người phụ trách.`);
+        } else {
+          showToast(`🚀 Đã ghi nhận gửi claim Vòng ${t.claim_attempts} tới Shopee.`);
+        }
+        saveState();
+        closeAiClaimModal();
+      }
+    }
+
+    // Resolve Claims
+    function resolveClaimSuccess(ticketId) {
+      const t = tickets.find(x => x.id === ticketId);
+      if (t) {
+        t.warehouse_id = 'hoàn_shopee';
+        t.claim_status = 'full_refund';
+        t.shopee_response = 'Shopee đồng ý bồi hoàn 100% giá trị.';
+        saveState();
+        showToast(`🎉 Shopee bồi hoàn 100%! Đã chuyển đơn ${t.order_id} sang KHO HOÀN SHOPEE.`);
+      }
+    }
+
+    function resolveClaimPartial(ticketId) {
+      const t = tickets.find(x => x.id === ticketId);
+      if (t) {
+        t.warehouse_id = 'thanh_lý';
+        t.claim_status = 'partial_paid';
+        t.shopee_response = 'Shopee bồi hoàn 1 phần hoặc không giải quyết. Đã chuyển kho thanh lý xuất bán.';
+        saveState();
+        showToast(`📦 Đã chuyển đơn ${t.order_id} sang KHO HÀNG THANH LÝ để xuất bán.`);
+      }
+    }
+
+    // Form: Create Ticket
+    function handleCreateTicket(e) {
+      e.preventDefault();
+      const newTicket = {
+        id: "TCK-" + Math.floor(1000 + Math.random() * 9000),
+        order_id: document.getElementById("inpOrderId").value.trim(),
+        tracking_no: document.getElementById("inpTrackingNo").value.trim(),
+        carrier: document.getElementById("inpCarrier").value,
+        sku: document.getElementById("inpSku").value.trim(),
+        received_date: document.getElementById("inpReceivedDate").value || new Date().toISOString().split('T')[0],
+        warehouse_id: "sàn_trả",
+        condition: "pending_inspection",
+        condition_text: document.getElementById("inpNotes").value || "Kiện mới tiếp nhận từ ĐVVC",
+        claim_target: "100",
+        claim_attempts: 0,
+        claim_status: "none",
+        shopee_response: "",
+        drive_url: document.getElementById("inpDriveUrl").value || "https://drive.google.com/drive/folders/1vYBVcoYobK2JGyEWggmD25ajREitwkBB?usp=sharing",
+        escalated: false,
+        created_at: new Date().toLocaleString()
+      };
+
+      tickets.unshift(newTicket);
+      saveState();
+      document.getElementById("formNewTicket").reset();
+      showToast(`✅ Đã tạo Ticket ${newTicket.id} và nhập Kho Sàn Trả thành công!`);
+      switchTab('intake');
+    }
+
+    function openNewTicketModal() {
+      switchTab('intake');
+      document.getElementById("inpOrderId").focus();
+    }
+
+    // Filter Table
+    function filterTicketTable() {
+      const q = document.getElementById("ticketSearch").value.toLowerCase();
+      document.querySelectorAll("#ticketTableBody tr").forEach(tr => {
+        const text = tr.innerText.toLowerCase();
+        tr.style.display = text.includes(q) ? "" : "none";
+      });
+    }
+
+    // Toast
+    function showToast(msg) {
+      const toast = document.getElementById("toast");
+      document.getElementById("toastMsg").innerText = msg;
+      toast.classList.remove("translate-y-20", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+      setTimeout(() => {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 3500);
+    }
+
+    // Lark Suite Simulation
+    function triggerLarkTestMessage() {
+      showToast("🔔 Đã kích hoạt lệnh bắn báo cáo tồn kho sang nhóm chat Lark qua Bot!");
+    }
+    function triggerLarkEscalationAlert() {
+      const escCount = tickets.filter(t => t.claim_attempts >= 5).length;
+      showToast(`🚨 Đã gửi cảnh báo ${escCount} đơn quá 5 vòng claim sang nhóm Lark để lãnh đạo can thiệp!`);
+    }
+
+    // Charts
+    let chart1, chart2;
+    function renderCharts() {
+      const counts = {
+        "Kho Sàn Trả": tickets.filter(t => t.warehouse_id === 'sàn_trả').length,
+        "Kho Bán": tickets.filter(t => t.warehouse_id === 'bán_bình_thường').length,
+        "Kho Chờ Sàn": tickets.filter(t => t.warehouse_id === 'chờ_xử_lý').length,
+        "Kho Hoàn Shopee": tickets.filter(t => t.warehouse_id === 'hoàn_shopee').length,
+        "Kho Thanh Lý": tickets.filter(t => t.warehouse_id === 'thanh_lý').length
+      };
+
+      if (chart1) chart1.destroy();
+      const ctx1 = document.getElementById("chartWarehouse").getContext("2d");
+      chart1 = new Chart(ctx1, {
+        type: 'doughnut',
+        data: {
+          labels: Object.keys(counts),
+          datasets: [{
+            data: Object.values(counts),
+            backgroundColor: ['#f97316', '#10b981', '#f59e0b', '#3b82f6', '#a855f7']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } }
+        }
+      });
+
+      if (chart2) chart2.destroy();
+      const ctx2 = document.getElementById("chartClaimSuccess").getContext("2d");
+      chart2 = new Chart(ctx2, {
+        type: 'bar',
+        data: {
+          labels: ['Hoàn 100%', 'Bồi Hoàn Một Phần', 'Đang Chờ Shopee', 'Chuyển Bán Lại'],
+          datasets: [{
+            label: 'Số đơn',
+            data: [
+              tickets.filter(t => t.warehouse_id === 'hoàn_shopee').length,
+              tickets.filter(t => t.warehouse_id === 'thanh_lý').length,
+              tickets.filter(t => t.warehouse_id === 'chờ_xử_lý').length,
+              tickets.filter(t => t.warehouse_id === 'bán_bình_thường').length
+            ],
+            backgroundColor: ['#3b82f6', '#a855f7', '#f59e0b', '#10b981']
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } },
+          scales: { y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+        }
+      });
+    }
+
+    // Refresh & Sync
+    function refreshData() {
+      renderAll();
+      showToast("🔄 Đã cập nhật và làm mới dữ liệu hệ thống!");
+    }
+
+    function renderAll() {
+      renderStats();
+      renderTicketTable();
+      renderIntakeList();
+      renderInspectionList();
+      renderClaimsList();
+      renderWarehousesGrid();
+    }
+
+    // Initialize
+    document.addEventListener("DOMContentLoaded", () => {
+      document.getElementById("syncStatus").classList.remove("hidden");
+      renderAll();
+    });
+  </script>
+</body>
+</html>
