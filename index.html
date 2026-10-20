@@ -6,6 +6,7 @@
   <title>Hệ Thống Xử Lý Hàng Đổi Trả TMĐT (Shopee Return Hub)</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <style>
@@ -248,10 +249,13 @@
             <p class="text-[11px] text-slate-500">Cập nhật thời gian thực từ kho và các bộ phận</p>
           </div>
           <div class="flex items-center gap-2">
-            <div class="relative flex-1 sm:w-64">
-              <i class="fa-solid fa-magnifying-glass absolute left-3 top-2.5 text-slate-400 text-xs"></i>
+            <div class="relative flex-1 sm:w-64 flex items-center">
+              <i class="fa-solid fa-magnifying-glass absolute left-3 text-slate-400 text-xs"></i>
               <input type="text" id="ticketSearch" onkeyup="filterTicketTable()" placeholder="Tìm theo đơn hàng, vận đơn, SKU..." 
-                     class="w-full pl-8 pr-3 py-1.5 rounded-lg border border-slate-200 text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                     class="w-full pl-8 pr-8 py-1.5 rounded-lg border border-slate-200 text-xs focus:ring-2 focus:ring-orange-500 focus:outline-none">
+              <button type="button" onclick="startScanner('ticketSearch', 'Tìm Kiếm Ticket', filterTicketTable)" title="Quét mã vạch để tìm kiếm" class="absolute right-2 text-slate-400 hover:text-orange-600 p-1">
+                <i class="fa-solid fa-barcode text-sm"></i>
+              </button>
             </div>
             <button onclick="refreshData()" class="p-1.5 px-2.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50 text-xs shrink-0">
               <i class="fa-solid fa-arrows-rotate"></i>
@@ -302,13 +306,37 @@
 
           <form id="formNewTicket" onsubmit="handleCreateTicket(event)" class="space-y-3 text-xs">
             <div>
-              <label class="block font-medium text-slate-700 mb-1">Mã Đơn Hàng Shopee <span class="text-red-500">*</span></label>
-              <input type="text" id="inpOrderId" required placeholder="Ví dụ: 241020SPX8921A" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+              <div class="flex items-center justify-between mb-1">
+                <label class="font-medium text-slate-700">Mã Đơn Hàng Shopee <span class="text-red-500">*</span></label>
+                <button type="button" onclick="startScanner('inpOrderId', 'Mã Đơn Hàng Shopee')" 
+                        class="text-[11px] text-orange-600 hover:text-orange-700 font-semibold flex items-center gap-1 px-2 py-0.5 rounded-md bg-orange-50 hover:bg-orange-100 border border-orange-200 transition">
+                  <i class="fa-solid fa-qrcode text-xs"></i>
+                  <span>Quét QR / Barcode</span>
+                </button>
+              </div>
+              <div class="relative flex items-center">
+                <input type="text" id="inpOrderId" required placeholder="Ví dụ: 241020SPX8921A" class="w-full pl-3 pr-10 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                <button type="button" onclick="startScanner('inpOrderId', 'Mã Đơn Hàng Shopee')" title="Quét mã bằng camera" class="absolute right-2 text-slate-400 hover:text-orange-600 p-1">
+                  <i class="fa-solid fa-barcode text-base"></i>
+                </button>
+              </div>
             </div>
 
             <div>
-              <label class="block font-medium text-slate-700 mb-1">Mã Vận Đơn Trả <span class="text-red-500">*</span></label>
-              <input type="text" id="inpTrackingNo" required placeholder="Ví dụ: SPXVN0493821890" class="w-full px-3 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+              <div class="flex items-center justify-between mb-1">
+                <label class="font-medium text-slate-700">Mã Vận Đơn Trả <span class="text-red-500">*</span></label>
+                <button type="button" onclick="startScanner('inpTrackingNo', 'Mã Vận Đơn Trả')" 
+                        class="text-[11px] text-blue-600 hover:text-blue-700 font-semibold flex items-center gap-1 px-2 py-0.5 rounded-md bg-blue-50 hover:bg-blue-100 border border-blue-200 transition">
+                  <i class="fa-solid fa-camera text-xs"></i>
+                  <span>Quét Vận Đơn</span>
+                </button>
+              </div>
+              <div class="relative flex items-center">
+                <input type="text" id="inpTrackingNo" required placeholder="Ví dụ: SPXVN0493821890" class="w-full pl-3 pr-10 py-2 rounded-lg border border-slate-200 focus:ring-2 focus:ring-orange-500 focus:outline-none">
+                <button type="button" onclick="startScanner('inpTrackingNo', 'Mã Vận Đơn Trả')" title="Quét mã bằng camera" class="absolute right-2 text-slate-400 hover:text-blue-600 p-1">
+                  <i class="fa-solid fa-barcode text-base"></i>
+                </button>
+              </div>
             </div>
 
             <div class="grid grid-cols-2 gap-2">
@@ -626,6 +654,65 @@
         <button onclick="closeAiClaimModal()" class="px-4 py-2 rounded-lg border border-slate-200 text-slate-600">Đóng</button>
         <button onclick="submitClaimAttempt()" class="px-4 py-2 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700 shadow-xs">
           <i class="fa-solid fa-paper-plane mr-1"></i> Gửi Claim Shopee
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== MODAL: BARCODE / QR SCANNER (DESKTOP & MOBILE) ==================== -->
+  <div id="modalScanner" class="fixed inset-0 bg-slate-900/80 backdrop-blur-xs z-50 hidden flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div class="bg-white rounded-t-2xl sm:rounded-2xl max-w-md w-full max-h-[94vh] flex flex-col p-4 sm:p-5 space-y-3 shadow-2xl animate-in fade-in slide-in-from-bottom duration-200">
+      
+      <div class="flex items-center justify-between border-b border-slate-100 pb-2.5 shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center font-bold">
+            <i class="fa-solid fa-barcode text-base"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-slate-900" id="scannerTargetTitle">Quét Mã Vạch / QR Code</h3>
+            <p class="text-[10px] text-slate-500">Đưa camera tới mã trên kiện hàng hoặc phiếu giao hàng</p>
+          </div>
+        </div>
+        <button onclick="stopScanner()" class="p-1.5 text-slate-400 hover:text-slate-600 rounded-lg">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
+      </div>
+
+      <!-- Scanner Viewport Area -->
+      <div class="relative bg-black rounded-xl overflow-hidden flex flex-col items-center justify-center min-h-[260px]">
+        <div id="scanner-reader" class="w-full"></div>
+
+        <div id="scanner-reticle" class="pointer-events-none absolute inset-0 flex items-center justify-center hidden">
+          <div class="w-64 h-36 border-2 border-orange-500/80 rounded-xl relative shadow-[0_0_15px_rgba(249,115,22,0.4)]">
+            <div class="absolute -top-1 -left-1 w-4 h-4 border-t-4 border-l-4 border-orange-500"></div>
+            <div class="absolute -top-1 -right-1 w-4 h-4 border-t-4 border-r-4 border-orange-500"></div>
+            <div class="absolute -bottom-1 -left-1 w-4 h-4 border-b-4 border-l-4 border-orange-500"></div>
+            <div class="absolute -bottom-1 -right-1 w-4 h-4 border-b-4 border-r-4 border-orange-500"></div>
+            <div class="w-full h-0.5 bg-red-500 shadow-[0_0_8px_red] absolute top-1/2 -translate-y-1/2 animate-pulse"></div>
+          </div>
+        </div>
+
+        <div id="scanner-loading" class="absolute inset-0 bg-slate-900/90 text-white flex flex-col items-center justify-center gap-2 text-xs p-4 text-center">
+          <i class="fa-solid fa-circle-notch fa-spin text-2xl text-orange-500"></i>
+          <span id="scannerStatusText">Đang khởi tạo Camera...</span>
+        </div>
+      </div>
+
+      <!-- Tùy chọn Tải/Chụp ảnh từ điện thoại nếu không bật camera trực tiếp -->
+      <div class="space-y-2 pt-1 text-xs">
+        <div class="flex items-center gap-2">
+          <label class="flex-1 py-2 px-3 rounded-xl border border-slate-200 hover:bg-slate-50 text-slate-700 text-center cursor-pointer flex items-center justify-center gap-1.5 transition">
+            <i class="fa-solid fa-camera text-blue-600"></i>
+            <span>Chụp / Tải ảnh từ thư viện</span>
+            <input type="file" id="scannerFileInput" accept="image/*" class="hidden" onchange="handleScanFile(this)">
+          </label>
+        </div>
+        <p class="text-[10px] text-slate-400 text-center">Hỗ trợ tất cả mã vận đơn 1D (Code 128, EAN, UPC) và mã QR của SPX, J&T, Ninja Van, Viettel Post</p>
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 shrink-0 text-xs">
+        <button onclick="stopScanner()" class="w-full py-2 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-medium">
+          Đóng Camera
         </button>
       </div>
     </div>
@@ -1400,6 +1487,146 @@
       renderInspectionList();
       renderClaimsList();
       renderWarehousesGrid();
+    }
+
+    // ==================== BARCODE / QR SCANNER LOGIC ====================
+    let html5QrCodeScanner = null;
+    let currentScanTargetId = null;
+    let currentPostScanCallback = null;
+
+    function playBeep() {
+      try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(880, audioCtx.currentTime); // 880Hz
+        gain.gain.setValueAtTime(0.15, audioCtx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.15);
+      } catch (e) {}
+
+      if (navigator.vibrate) {
+        try { navigator.vibrate([80, 40, 80]); } catch (e) {}
+      }
+    }
+
+    function startScanner(targetInputId, title, callback) {
+      currentScanTargetId = targetInputId;
+      currentPostScanCallback = callback || null;
+
+      document.getElementById("scannerTargetTitle").innerText = `Quét: ${title || 'Mã Vạch / QR'}`;
+      document.getElementById("modalScanner").classList.remove("hidden");
+      document.getElementById("scanner-loading").classList.remove("hidden");
+      document.getElementById("scannerStatusText").innerText = "Đang xin quyền truy cập Camera...";
+      document.getElementById("scanner-reticle").classList.add("hidden");
+
+      setTimeout(() => {
+        initCameraStream();
+      }, 300);
+    }
+
+    async function initCameraStream() {
+      try {
+        if (!window.Html5Qrcode) {
+          throw new Error("Thư viện quét mã chưa tải xong, vui lòng thử lại!");
+        }
+
+        if (html5QrCodeScanner) {
+          try { await html5QrCodeScanner.stop(); } catch(e) {}
+          html5QrCodeScanner = null;
+        }
+
+        html5QrCodeScanner = new Html5Qrcode("scanner-reader");
+
+        const config = {
+          fps: 15,
+          qrbox: { width: 260, height: 160 },
+          aspectRatio: 1.333334
+        };
+
+        await html5QrCodeScanner.start(
+          { facingMode: "environment" },
+          config,
+          (decodedText, decodedResult) => {
+            onBarcodeDetected(decodedText);
+          },
+          (errorMessage) => {
+            // Scanning in progress...
+          }
+        );
+
+        document.getElementById("scanner-loading").classList.add("hidden");
+        document.getElementById("scanner-reticle").classList.remove("hidden");
+      } catch (err) {
+        console.error("Camera scan error:", err);
+        document.getElementById("scanner-loading").classList.remove("hidden");
+        document.getElementById("scannerStatusText").innerHTML = `
+          <div class="text-amber-400 font-semibold mb-1">Không thể mở Camera tự động</div>
+          <div class="text-[11px] text-slate-300">Vui lòng bấm nút <b>"Chụp / Tải ảnh"</b> bên dưới để quét mã từ ảnh chụp.</div>
+        `;
+      }
+    }
+
+    function onBarcodeDetected(codeText) {
+      const cleanCode = codeText.trim();
+      playBeep();
+
+      if (currentScanTargetId) {
+        const inputElem = document.getElementById(currentScanTargetId);
+        if (inputElem) {
+          inputElem.value = cleanCode;
+          inputElem.dispatchEvent(new Event('input', { bubbles: true }));
+          inputElem.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      }
+
+      if (typeof currentPostScanCallback === 'function') {
+        currentPostScanCallback(cleanCode);
+      }
+
+      showToast(`📸 Đã nhận diện: ${cleanCode}`);
+      stopScanner();
+    }
+
+    function handleScanFile(input) {
+      if (!input.files || input.files.length === 0) return;
+      const file = input.files[0];
+
+      if (!html5QrCodeScanner) {
+        html5QrCodeScanner = new Html5Qrcode("scanner-reader");
+      }
+
+      document.getElementById("scanner-loading").classList.remove("hidden");
+      document.getElementById("scannerStatusText").innerText = "Đang phân tích hình ảnh mã vạch...";
+
+      html5QrCodeScanner.scanFile(file, true)
+        .then(decodedText => {
+          onBarcodeDetected(decodedText);
+        })
+        .catch(err => {
+          showToast("❌ Không tìm thấy mã vạch trong ảnh. Vui lòng chụp rõ nét hơn.");
+          document.getElementById("scanner-loading").classList.add("hidden");
+        })
+        .finally(() => {
+          input.value = "";
+        });
+    }
+
+    async function stopScanner() {
+      if (html5QrCodeScanner) {
+        try {
+          await html5QrCodeScanner.stop();
+          html5QrCodeScanner.clear();
+        } catch (e) {}
+        html5QrCodeScanner = null;
+      }
+      document.getElementById("modalScanner").classList.add("hidden");
+      currentScanTargetId = null;
+      currentPostScanCallback = null;
     }
 
     // Initialize
