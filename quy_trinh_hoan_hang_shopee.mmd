@@ -1,0 +1,52 @@
+flowchart TD
+    subgraph G1["GIAI ĐOẠN 1: TIẾP NHẬN & ĐĂNG KÝ (Thủ Kho)"]
+        A1["📋 Nhận danh sách hàng hoàn mỗi ngày<br/>(SPX, J&T, Ninja Van, Viettel Post...)"] --> A2["🖥️ Mở Web App & Tạo Ticket mới<br/>(Nhập Mã Đơn + Mã Vận Đơn)"]
+        A2 --> A3["📹 Quay camera kiện hàng + Mở hộp kiểm tra"]
+        A3 --> A4["☁️ Tải video/ảnh lên Google Drive<br/>(Thư mục ShopeeReturnMedia)"]
+        A4 --> A5["📥 Nhập vào Kho 1: Kho Sàn Trả<br/>(Lập Biên Bản Nhận Hàng)"]
+    end
+
+    subgraph G2["GIAI ĐOẠN 2: GIÁM ĐỊNH & PHÂN LOẠI (Kỹ Thuật / BH)"]
+        A5 --> B1["🔍 Kỹ thuật viên mở Ticket trên Web App<br/>(Kiểm tra ngoại quan, linh kiện, test máy)"]
+        B1 --> B2{"⚖️ Kết quả Giám Định?"}
+        
+        B2 -->|"🟢 Bình thường (Nguyên seal, đủ phụ kiện)"| B3["➡️ Điều chuyển sang Kho 2: Kho Bán Bình Thường"]
+        B3 --> B4["✅ Đóng Ticket & Nhập bán hàng bình thường"]
+
+        B2 -->|"🔴 Có vấn đề (Vỡ màn hình, móp, lỗi máy)"| B5["📝 Lập Biên Bản Kỹ Thuật & Đề xuất bồi hoàn<br/>(100%, 70%, 50%)"]
+        B5 --> B6["➡️ Điều chuyển sang Kho 3: Kho Chờ Xử Lý Sàn"]
+    end
+
+    subgraph G3["GIAI ĐOẠN 3: KHIẾU NẠI SHOPEE & AI (CS-Ecom)"]
+        B6 --> C1["✨ Trợ Lý AI tự sinh văn bản Khiếu nại Shopee<br/>(Theo lỗi Kỹ Thuật + Link Video Drive)"]
+        C1 --> C2["📨 Gửi Claim tới Shopee<br/>(Ghi nhận Vòng Claim: Lần n / 5)"]
+        C2 --> C3["⏳ Chờ Shopee phản hồi (2 - 3 ngày làm việc)"]
+        C3 --> C4["⏰ SLA: CS-Ecom / AI phản hồi trong 24 giờ"]
+        C4 --> C5{"📊 Kết quả từ Shopee?"}
+    end
+
+    subgraph G4["GIAI ĐOẠN 4: PHÊ DUYỆT LARK & ĐIỀU CHUYỂN KẾT THÚC"]
+        C5 -->|"🎉 Shopee bồi hoàn 100% tiền"| D1["🔔 Bot bắn Thẻ Phê Duyệt sang nhóm Lark<br/>(Lãnh đạo bấm Approve)"]
+        D1 --> D2["➡️ Điều chuyển sang Kho 4: Kho Hoàn Shopee"]
+        D2 --> D3["🏁 Đóng Ticket: Hoàn tất thu hồi 100%"]
+
+        C5 -->|"🔄 Chưa đạt & Vòng claim < 5"| D4["Lặp lại: Bổ sung bằng chứng & Gửi vòng sau"]
+        D4 --> C2
+
+        C5 -->|"⚠️ Quá 5 lần Claim chưa thỏa thuận"| E1["🚨 KÍCH HOẠT CHẾ ĐỘ ESCALATION<br/>(Chuyển Người Phụ Trách thủ công)"]
+        E1 --> E2["👤 Người phụ trách đàm phán trực tiếp Shopee"]
+        E2 --> E3["🤝 Làm việc với Kỹ thuật / Đề xuất BGĐ duyệt mức hoàn"]
+        E3 --> E4{"Chốt phương án cuối cùng?"}
+        
+        E4 -->|"Duyệt bồi hoàn 1 phần / Thanh lý"| F1["➡️ Điều chuyển sang Kho 5: Kho Hàng Thanh Lý"]
+        F1 --> F2["🏷️ Xuất bán thanh lý thu hồi vốn & Đóng Ticket"]
+        
+        E4 -->|"Shopee chấp thuận hoàn 100%"| D2
+    end
+
+    classDef kho fill:#fef3c7,stroke:#d97706,stroke-width:2px,color:#92400e;
+    classDef success fill:#d1fae5,stroke:#059669,stroke-width:2px,color:#065f46;
+    classDef danger fill:#fee2e2,stroke:#dc2626,stroke-width:2px,color:#991b1b;
+    class B3,B6,D2,F1 kho;
+    class B4,D3,F2 success;
+    class E1,E2,E3 danger;
